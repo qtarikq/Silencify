@@ -4,7 +4,7 @@ Spotify'da reklam çaldığında sesi otomatik olarak kısan, reklam bitince ger
 
 ## Nasıl çalışacak?
 
-1. Spotify penceresinin başlığını takip eder (reklam sırasında şarkı adı yerine "Advertisement" / "Spotify" yazar).
+1. Spotifyda müzik çalarken ne zaman reklama geçtiğini anlar (nasıl anlıyacağını daha çözmedik)
 2. Reklam algılanınca Spotify'ın sesini kısar.
 3. Reklam bitince sesi geri açar.
 
