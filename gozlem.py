@@ -24,9 +24,9 @@ from winrt.windows.media.control import (
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
 # ---------------------------------------------------------------------------
-KAYIT_DOSYASI = "gozlem_kaydi.txt"
+KAYIT_DOSYASI = "git-ignore-dosyalari/gozlem_kaydi.txt"
 KONTROL_ARALIGI = 1  # Kaç saniyede bir bakılacak
-KARA_KUTU_DOSYASI = "kara_kutu.txt"
+KARA_KUTU_DOSYASI = "git-ignore-dosyalari/kara_kutu.txt"
 SURE_SINIRI = 10     # Bir tur bundan uzun sürerse takıldı say (saniye)
 
 # Spotify'ın gizli yardımcı pencereleri. Bunlar hiç değişmiyor, yok sayıyoruz.
