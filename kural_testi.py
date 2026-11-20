@@ -14,13 +14,12 @@ Spotify'a, sese ya da Windows'a dokunmaz; sadece metin okur.
 import ast    # "['A', 'B']" gibi bir metni gerçek Python listesine çevirmek için
 import re     # Metnin içinde belli bir kalıbı bulmak için (düzenli ifadeler)
 
+from kural import bilinen_reklam_metni_mi, karar_ver   # Programın gerçek kuralı (kural.py)
+
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
 # ---------------------------------------------------------------------------
 KAYIT_DOSYASI = "git-ignore-dosyalari/gozlem_kaydi.txt"
-
-DURAKLATMA_BASLIKLARI = {"Spotify Free", "Spotify Premium"}
-BILINEN_REKLAM_METINLERI = {"şimdi dinle", "indir ve dinle"}   # Küçük harfle, noktasız
 
 # Bir kayıt satırının kalıbı. Parantez içindeki her (.*?) bir parçayı yakalar.
 # "başlık(?:lar)?" hem eski "başlık=" hem yeni "başlıklar=" satırlarını kabul eder.
@@ -32,16 +31,6 @@ SATIR_KALIBI = re.compile(
 # ---------------------------------------------------------------------------
 # 3. YARDIMCI FONKSİYONLAR
 # ---------------------------------------------------------------------------
-def turkce_kucuk_harf(metin):
-    """Türkçeye uygun küçük harfe çevirir. (Python'un lower()'ı 'İ' ve 'I' harflerini yanlış çevirir.)"""
-    return metin.replace("İ", "i").replace("I", "ı").lower()
-
-
-def bilinen_reklam_metni_mi(sarki):
-    """Şarkı adı bilinen bir reklam metniyse True döndürür. Harf büyüklüğüne ve sondaki noktaya bakmaz."""
-    return turkce_kucuk_harf(sarki).strip().rstrip(".") in BILINEN_REKLAM_METINLERI
-
-
 def ana_pencereyi_sec(basliklar):
     """Mini oynatıcıyı (' • ' içeren başlık) eleyip ana pencerenin başlığını döndürür. GEÇİCİ ÇÖZÜM."""
     adaylar = [b for b in basliklar if " • " not in b]
@@ -66,22 +55,7 @@ def kural_senin(sarki, sanatci):
         return "REKLAM"
     return "-"   # Reklam değil (bu kural şarkı/podcast ayrımı yapmıyor)
 
-
-def kural_program(baslik, sarki, sanatci):
-    """Programın kullanacağı kural. Sorular SIRAYLA sorulur, ilk 'evet'te karar verilir."""
-    if baslik is None:
-        return "?"
-    if baslik in DURAKLATMA_BASLIKLARI:      # 1. Duraklatılmış mı?
-        return "DURDU"
-    if sanatci == "Spotify":                 # 2. Sanatçı Spotify mı?
-        return "REKLAM"
-    if bilinen_reklam_metni_mi(sarki):       # 2+. Bilinen bir reklam metni mi?
-        return "REKLAM"
-    if sanatci == "":                        # 3. Sanatçı boş mu?
-        return "PODCAST"
-    if " - " in baslik:                      # 4. Başlık "Sanatçı - Şarkı" formatında mı?
-        return "ŞARKI"
-    return "REKLAM"                          # 5. Hiçbiri değilse
+# Programın kuralı (karar_ver) artık kural.py dosyasında.
 
 
 # ---------------------------------------------------------------------------
@@ -112,7 +86,7 @@ with open(KAYIT_DOSYASI, encoding="utf-8") as dosya:
         baslik = ana_pencereyi_sec(basliklar)
 
         senin = kural_senin(sarki, sanatci)
-        program = kural_program(baslik, sarki, sanatci)
+        program = karar_ver(baslik, sarki, sanatci)
 
         # İki kural "reklam mı?" sorusuna aynı cevabı veriyor mu?
         isaret = "  <<< farklı" if (senin == "REKLAM") != (program == "REKLAM") else ""

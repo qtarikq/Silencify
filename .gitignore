@@ -1,2 +1,3 @@
 git-ignore-dosyalari/
 .venv/
+__pycache__/
