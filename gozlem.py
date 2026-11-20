@@ -10,6 +10,7 @@ Durdurmak için: Ctrl+C
 # 1. KÜTÜPHANELER
 # ---------------------------------------------------------------------------
 import asyncio                     # async/await ile bekleme işleri için
+import faulthandler                # Takılma olursa programın nerede beklediğini yazmak için
 from datetime import datetime      # Saati yazmak için
 
 import psutil                      # Program numarasından program adını bulmak için
@@ -25,6 +26,8 @@ from winrt.windows.media.control import (
 # ---------------------------------------------------------------------------
 KAYIT_DOSYASI = "gozlem_kaydi.txt"
 KONTROL_ARALIGI = 1  # Kaç saniyede bir bakılacak
+KARA_KUTU_DOSYASI = "kara_kutu.txt"
+SURE_SINIRI = 10     # Bir tur bundan uzun sürerse takıldı say (saniye)
 
 # Spotify'ın gizli yardımcı pencereleri. Bunlar hiç değişmiyor, yok sayıyoruz.
 YARDIMCI_PENCERELER = {"GDI+ Window (Spotify.exe)", "MSCTFIME UI", "Default IME"}
@@ -88,7 +91,13 @@ async def ana_dongu():
     kaydet("--- Gözlem başladı (durdurmak için Ctrl+C) ---")
     onceki = None
 
+    # Kara kutu dosyasını aç ve programın başladığı saati yaz
+    kara_kutu = open(KARA_KUTU_DOSYASI, "a", encoding="utf-8")
+    kara_kutu.write(f"\n--- {datetime.now():%Y-%m-%d %H:%M:%S} program başladı ---\n")
+    kara_kutu.flush()                             # Yazılanı hemen diske gönder
+
     while True:                                   # Sonsuza kadar tekrar et
+        faulthandler.dump_traceback_later(SURE_SINIRI, file=kara_kutu)  # Alarmı kur: 10 sn
         try:
             basliklar = spotify_pencere_basliklari()
             medya = await spotify_medya_bilgisi()
@@ -96,6 +105,8 @@ async def ana_dongu():
             kaydet(f"HATA: {hata}")
             await asyncio.sleep(KONTROL_ARALIGI)
             continue
+        finally:                                  # Hata olsa da olmasa da en sonda çalışır
+            faulthandler.cancel_dump_traceback_later()  # Tur bitti: alarmı iptal et
 
         simdiki = (basliklar, medya)
         if simdiki != onceki:                     # Sadece bir şey değiştiyse yaz
