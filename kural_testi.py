@@ -15,11 +15,12 @@ import ast    # "['A', 'B']" gibi bir metni gerçek Python listesine çevirmek i
 import re     # Metnin içinde belli bir kalıbı bulmak için (düzenli ifadeler)
 
 from kural import bilinen_reklam_metni_mi, karar_ver   # Programın gerçek kuralı (kural.py)
+from yollar import GOZLEM_KAYDI                        # Dosya yolu (programın kendi konumuna göre)
 
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
 # ---------------------------------------------------------------------------
-KAYIT_DOSYASI = "git-ignore-dosyalari/gozlem_kaydi.txt"
+KAYIT_DOSYASI = GOZLEM_KAYDI
 
 # Bir kayıt satırının kalıbı. Parantez içindeki her (.*?) bir parçayı yakalar.
 # "başlık(?:lar)?" hem eski "başlık=" hem yeni "başlıklar=" satırlarını kabul eder.
@@ -61,6 +62,11 @@ def kural_senin(sarki, sanatci):
 # ---------------------------------------------------------------------------
 # 5. ANA PROGRAM
 # ---------------------------------------------------------------------------
+if not KAYIT_DOSYASI.exists():        # Gözlem kaydı yoksa (ör. proje yeni indirildiyse) çökme, açıkla
+    print(f"Gözlem kaydı bulunamadı: {KAYIT_DOSYASI}")
+    print("Önce bir süre 'python gozlem.py' çalıştırıp kayıt topla.")
+    raise SystemExit
+
 print(f"{'SAAT':<9} {'ANA BAŞLIK':<38} {'SANATÇI':<12} {'SENİN':<7} {'PROGRAM':<8}")
 print("-" * 78)
 

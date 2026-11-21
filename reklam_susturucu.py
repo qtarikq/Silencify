@@ -24,12 +24,13 @@ from winrt.windows.media.control import (
 from gozlem import DURUM_ADLARI                                     # ÇALIYOR / DURDU çevirisi
 from kural import karar_ver                                         # REKLAM / ŞARKI / PODCAST / DURDU
 from ses_deneme import sessiz_mi, sessize_al, spotify_ses_oturumlari  # Ses kısma / açma
+from yollar import KARA_KUTU, SUSTURUCU_KAYDI                       # Dosya yolları
 
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
 # ---------------------------------------------------------------------------
-KAYIT_DOSYASI = "git-ignore-dosyalari/susturucu_kaydi.txt"
-KARA_KUTU_DOSYASI = "git-ignore-dosyalari/kara_kutu.txt"
+KAYIT_DOSYASI = SUSTURUCU_KAYDI      # Yollar yollar.py'de, programın kendi konumuna göre
+KARA_KUTU_DOSYASI = KARA_KUTU
 
 KONTROL_ARALIGI = 1        # Spotify açıkken kaç saniyede bir bakılacak
 KAPALI_ARALIGI = 5         # Spotify kapalıyken kaç saniyede bir bakılacak

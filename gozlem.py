@@ -21,12 +21,14 @@ from winrt.windows.media.control import (
     GlobalSystemMediaTransportControlsSessionPlaybackStatus as OynatmaDurumu,
 )
 
+from yollar import GOZLEM_KAYDI, KARA_KUTU   # Dosya yolları (programın kendi konumuna göre)
+
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
 # ---------------------------------------------------------------------------
-KAYIT_DOSYASI = "git-ignore-dosyalari/gozlem_kaydi.txt"
+KAYIT_DOSYASI = GOZLEM_KAYDI
 KONTROL_ARALIGI = 1  # Kaç saniyede bir bakılacak
-KARA_KUTU_DOSYASI = "git-ignore-dosyalari/kara_kutu.txt"
+KARA_KUTU_DOSYASI = KARA_KUTU
 SURE_SINIRI = 10     # Bir tur bundan uzun sürerse takıldı say (saniye)
 
 # Spotify'ın gizli yardımcı pencereleri. Bunlar hiç değişmiyor, yok sayıyoruz.
