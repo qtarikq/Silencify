@@ -4,6 +4,8 @@
 
 Spotify'da reklam çaldığında sesi otomatik olarak kısan, reklam bitince geri açan küçük bir Windows uygulaması. (!REKLAM ENGELLEMEZ!)
 
+<img width="1775" height="412" alt="image" src="https://github.com/user-attachments/assets/0365976b-6f8c-472a-a4b0-a6342415b9a8" />
+
 ## İndir
 
 **[Silencify.exe'yi indir](../../releases/latest/download/Silencify.exe)** (Windows 10/11)
