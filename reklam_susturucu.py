@@ -24,7 +24,7 @@ from winrt.windows.media.control import (
 from gozlem import DURUM_ADLARI                                     # ÇALIYOR / DURDU çevirisi
 from kural import karar_ver                                         # REKLAM / ŞARKI / PODCAST / DURDU
 from ses_deneme import sessiz_mi, sessize_al, spotify_ses_oturumlari  # Ses kısma / açma
-from yollar import KARA_KUTU, SUSTURUCU_KAYDI                       # Dosya yolları
+from yollar import KARA_KUTU, KISTIM_NOTU, SUSTURUCU_KAYDI          # Dosya yolları
 
 # ---------------------------------------------------------------------------
 # 2. AYARLAR
@@ -51,6 +51,26 @@ def kaydet(mesaj):
     print(satir)
     with open(KAYIT_DOSYASI, "a", encoding="utf-8") as dosya:
         dosya.write(satir + "\n")
+
+
+def spotify_sessize_al():
+    """Spotify'ı sessize alır ve diske 'kıstım' notu bırakır. Ses kaynağı yoksa False döndürür."""
+    oturumlar = spotify_ses_oturumlari()
+    if not oturumlar:
+        return False
+    sessize_al(oturumlar, True)
+    KISTIM_NOTU.write_text(f"{datetime.now():%H:%M:%S}", encoding="utf-8")
+    return True
+
+
+def spotify_sesini_ac():
+    """Spotify'ın sesini açar ve 'kıstım' notunu siler. Ses kaynağı yoksa (Spotify kapalı) False döndürür."""
+    oturumlar = spotify_ses_oturumlari()
+    if not oturumlar:
+        return False                          # Not kalsın: Spotify açılınca tekrar denenecek
+    sessize_al(oturumlar, False)
+    KISTIM_NOTU.unlink(missing_ok=True)       # Notu sil (zaten yoksa hata verme)
+    return True
 
 
 def spotify_ana_pencere_basligi():
@@ -120,7 +140,7 @@ async def medya_bilgisi_zaman_sinirli():
 # 4. ANA DÖNGÜ
 # ---------------------------------------------------------------------------
 async def ana_dongu():
-    biz_kistik = False          # Spotify'ı BİZ mi sessize aldık?
+    biz_kistik = KISTIM_NOTU.exists()   # Spotify'ı BİZ mi sessize aldık? (önceki çalışmadan not kaldıysa evet)
     aday_karar = None           # En son görülen karar
     aday_sayisi = 0             # O karar kaç kontrol üst üste görüldü
     uygulanan_karar = None      # En son uygulanan (onaylanmış) karar
@@ -133,6 +153,8 @@ async def ana_dongu():
     kara_kutu.flush()
 
     kaydet("=== Reklam susturucu başladı (durdurmak için Ctrl+C) ===")
+    if biz_kistik:
+        kaydet('Önceki çalışmadan kalan "kıstım" notu bulundu, ses sırası gelince açılacak')
 
     try:
         while True:
@@ -152,7 +174,8 @@ async def ana_dongu():
                 if spotify_acik is not False:
                     kaydet("Spotify kapalı, bekleniyor...")
                     spotify_acik = False
-                biz_kistik = False             # Spotify kapandıysa kıstığımız ses de gitti
+                # biz_kistik'i UNUTMUYORUZ: Windows Spotify'ın sessiz ayarını hatırlayabilir;
+                # Spotify yeniden açılıp şarkı çalınca sesi biz açacağız.
                 aday_karar = uygulanan_karar = uygulanan_baslik = None
                 await asyncio.sleep(KAPALI_ARALIGI)
                 continue
@@ -190,20 +213,18 @@ async def ana_dongu():
                 if biz_kistik:
                     reklam_turu += 1
                     if reklam_turu % OTURUM_YENILEME_ARALIGI == 0:      # Her saniye değil, 5 turda bir
-                        sessize_al(spotify_ses_oturumlari(), True)    # Yeni ses kaynağı açıldıysa onu da kıs
+                        spotify_sessize_al()                          # Yeni ses kaynağı açıldıysa onu da kıs
                 else:
                     oturumlar = spotify_ses_oturumlari()
                     if oturumlar and sessiz_mi(oturumlar):
                         pass                          # Sen zaten sessize almışsın, dokunma
-                    elif oturumlar:
-                        sessize_al(oturumlar, True)
+                    elif spotify_sessize_al():
                         biz_kistik = True
                         reklam_turu = 0
                         kaydet("  -> Spotify sessize alındı")
 
             elif karar in ("ŞARKI", "PODCAST"):
-                if biz_kistik:
-                    sessize_al(spotify_ses_oturumlari(), False)
+                if biz_kistik and spotify_sesini_ac():    # Ses kaynağı yoksa bir sonraki turda tekrar dener
                     biz_kistik = False
                     kaydet("  -> Ses geri açıldı")
 
@@ -214,8 +235,10 @@ async def ana_dongu():
     finally:                                   # Ctrl+C ya da hata: kıstığımız sesi geri aç
         faulthandler.cancel_dump_traceback_later()
         if biz_kistik:
-            sessize_al(spotify_ses_oturumlari(), False)
-            kaydet("  -> Program kapanırken ses geri açıldı")
+            if spotify_sesini_ac():
+                kaydet("  -> Program kapanırken ses geri açıldı")
+            else:
+                kaydet('  -> Spotify kapalı, ses açılamadı; "kıstım" notu bir sonraki açılış için bırakıldı')
 
 
 # ---------------------------------------------------------------------------

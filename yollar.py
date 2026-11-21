@@ -18,3 +18,8 @@ KAYIT_KLASORU.mkdir(exist_ok=True)    # Yoksa oluştur; varsa hiçbir şey yapma
 GOZLEM_KAYDI = KAYIT_KLASORU / "gozlem_kaydi.txt"
 SUSTURUCU_KAYDI = KAYIT_KLASORU / "susturucu_kaydi.txt"
 KARA_KUTU = KAYIT_KLASORU / "kara_kutu.txt"
+
+# Program Spotify'ı sessize alınca bu dosyayı oluşturur, sesi açınca siler.
+# Program düzgün kapanamazsa (terminal × ile kapatıldı, çöktü, bilgisayar kapandı)
+# bir sonraki açılışta bu not sayesinde sesi kendisinin kıstığını hatırlar.
+KISTIM_NOTU = KAYIT_KLASORU / "kistim.txt"
