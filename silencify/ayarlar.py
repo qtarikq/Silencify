@@ -12,6 +12,7 @@ from yollar import AYARLAR_DOSYASI
 
 VARSAYILAN = {
     "otomatik_basla": None,   # None = henüz sorulmadı; True = açılınca başlasın; False = elle başlatılsın
+    "dil": None,              # None = seçilmedi (Windows'un dili kullanılır); "tr" ya da "en"
 }
 
 

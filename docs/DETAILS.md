@@ -61,6 +61,7 @@ To uninstall, just delete the `.exe` and this folder (if you enabled "start with
 - **×** button: asks whether to "keep running in the background" or "close the app completely".
 - **Right-click the icon next to the clock:** Start/Stop, start automatically on launch, start with Windows.
 - Only one copy of the app can run at a time.
+- **Language:** Switch between English and Turkish with the **TR / EN** button at the top of the window or **Dil / Language** in the menu. On first start, the Windows language is used.
 
 ## Project structure
 
@@ -72,6 +73,7 @@ To uninstall, just delete the `.exe` and this folder (if you enabled "start with
 | `silencify/kural.py` | The "what is playing right now?" decision |
 | `silencify/spotify.py` | Everything that talks to Spotify and Windows |
 | `silencify/arayuz.py` | The window and dialogs |
+| `silencify/dil.py` | All texts of the app (English and Turkish) |
 | `silencify/simge.py` | The app icon (easy to replace, see `silencify/simgeler/`) |
 | `silencify/kayit.py`, `yollar.py`, `ayarlar.py` | Logging, file paths, user preferences |
 | `silencify/baslangic.py`, `tek_kopya.py` | Start with Windows, single-instance protection |
@@ -83,6 +85,7 @@ To uninstall, just delete the `.exe` and this folder (if you enabled "start with
 ```bash
 python testler/test_kural.py      # Ad detection rule (real cases)
 python testler/test_senaryo.py    # Engine behaviour (with a fake Spotify)
+python testler/test_dil.py        # Every text exists in both languages
 ```
 
 ## Status

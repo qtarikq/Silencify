@@ -59,6 +59,7 @@ Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows aç
 - **×** düğmesi: "Arka planda çalışsın" ya da "Uygulama tamamen kapansın" seçeneklerini sorar.
 - **Saatin yanındaki simgeye sağ tık:** Başlat/Durdur, açılışta otomatik başlatma, Windows açılınca başlatma.
 - Program aynı anda yalnızca bir kez çalışabilir.
+- **Dil:** Pencerenin üst köşesindeki **TR / EN** düğmesi ya da menüdeki **Dil / Language** ile Türkçe ve İngilizce arasında geçilir. İlk açılışta Windows'un dili kullanılır.
 
 ## Proje yapısı
 
@@ -70,6 +71,7 @@ Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows aç
 | `silencify/kural.py` | "Şu an ne çalıyor?" kararı |
 | `silencify/spotify.py` | Spotify ve Windows ile konuşan her şey |
 | `silencify/arayuz.py` | Pencere ve soru pencereleri |
+| `silencify/dil.py` | Uygulamanın bütün yazıları (Türkçe ve İngilizce) |
 | `silencify/simge.py` | Programın simgesi (kolay değiştirilebilir, bkz. `silencify/simgeler/`) |
 | `silencify/kayit.py`, `yollar.py`, `ayarlar.py` | Kayıt tutma, dosya yolları, kullanıcı tercihleri |
 | `silencify/baslangic.py`, `tek_kopya.py` | Windows açılınca başlatma, tek kopya koruması |
@@ -81,6 +83,7 @@ Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows aç
 ```bash
 python testler/test_kural.py      # Reklam tanıma kuralı (gerçek vakalar)
 python testler/test_senaryo.py    # Motorun davranışı (sahte bir Spotify ile)
+python testler/test_dil.py        # İki dilde de bütün yazılar var mı
 ```
 
 ## Durum

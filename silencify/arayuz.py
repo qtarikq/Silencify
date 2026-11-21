@@ -10,8 +10,10 @@ Ekran değişince bant ve çerçeve renkleri yumuşakça (animasyonla) değişir
 
 from PySide6.QtCore import QRectF, Qt, QVariantAnimation, Signal
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
-from surum import AD
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+
+from dil import secili_dil, yazi
+from surum import AD
 
 GENISLIK, YUKSEKLIK = 260, 290
 GECIS_SURESI = 450          # Ekranlar arası renk geçişi (milisaniye)
@@ -23,34 +25,26 @@ SIMGE = {
     "mikrofon": "", "duraklat": "", "sessiz": "",
 }
 
-# Her ekranın görünümü: renkler ve yazılar (tasarımdaki 5 ekran)
+# Her ekranın renkleri ve simgesi (tasarımdaki 5 ekran). Yazıları dil.py'de.
 EKRANLAR = {
     "KAPALI": dict(
         cerceve="#888780", bant="#444441", simge="guc", simge_renk="#B4B2A9",
-        baslik="Kapalı", baslik_renk="#F1EFE8", alt="Reklamlar susturulmuyor", alt_renk="#B4B2A9",
-        etiket="Şu an çalan", sarki_renk="#D3D1C7", dugme="Başlat"),
+        baslik_renk="#F1EFE8", alt_renk="#B4B2A9", sarki_renk="#D3D1C7"),
     "SPOTIFY_BEKLENIYOR": dict(
         cerceve="#7F77DD", bant="#3C3489", simge="kum_saati", simge_renk="#AFA9EC",
-        baslik="Spotify bekleniyor", baslik_renk="#EEEDFE",
-        alt="Spotify açılınca kendiliğinden başlar", alt_renk="#CECBF6",
-        etiket="Şu an çalan", sarki_renk="#888780", dugme="Durdur"),
+        baslik_renk="#EEEDFE", alt_renk="#CECBF6", sarki_renk="#888780"),
     "ŞARKI": dict(
         cerceve="#1D9E75", bant="#085041", simge="kalkan", simge_renk="#5DCAA5",
-        baslik="Açık", baslik_renk="#E1F5EE", alt="Reklam bekleniyor", alt_renk="#9FE1CB",
-        etiket="Şu an çalan", sarki_renk="#F1EFE8", dugme="Durdur"),
+        baslik_renk="#E1F5EE", alt_renk="#9FE1CB", sarki_renk="#F1EFE8"),
     "PODCAST": dict(
         cerceve="#1D9E75", bant="#085041", simge="kalkan", simge_renk="#5DCAA5",
-        baslik="Açık", baslik_renk="#E1F5EE", alt="Reklam bekleniyor", alt_renk="#9FE1CB",
-        etiket="Şu an dinlenen", sarki_renk="#F1EFE8", dugme="Durdur"),
+        baslik_renk="#E1F5EE", alt_renk="#9FE1CB", sarki_renk="#F1EFE8"),
     "DURDU": dict(
         cerceve="#378ADD", bant="#0C447C", simge="duraklat", simge_renk="#85B7EB",
-        baslik="Duraklatıldı", baslik_renk="#E6F1FB",
-        alt="Koruma açık, müzik bekleniyor", alt_renk="#B5D4F4",
-        etiket="Son çalan", sarki_renk="#B4B2A9", dugme="Durdur"),
+        baslik_renk="#E6F1FB", alt_renk="#B5D4F4", sarki_renk="#B4B2A9"),
     "REKLAM": dict(
         cerceve="#D85A30", bant="#712B13", simge="sessiz", simge_renk="#F0997B",
-        baslik="Reklam", baslik_renk="#FAECE7", alt="Spotify'ın sesi kısıldı", alt_renk="#F5C4B3",
-        etiket="Şu an çalan", sarki_renk="#F1EFE8", dugme="Durdur"),
+        baslik_renk="#FAECE7", alt_renk="#F5C4B3", sarki_renk="#F1EFE8"),
 }
 ETIKET_SIMGESI = {"ŞARKI": "nota", "PODCAST": "mikrofon", "DURDU": "duraklat", "REKLAM": "sessiz"}
 
@@ -71,6 +65,7 @@ class Pencere(QWidget):
 
     dugmeye_basildi = Signal()      # Başlat/Durdur düğmesine basılınca
     kapatma_istendi = Signal()      # × düğmesine basılınca (ne yapılacağına dışarısı karar verir)
+    dil_istendi = Signal()          # TR/EN düğmesine basılınca
 
     def __init__(self):
         super().__init__()
@@ -83,6 +78,7 @@ class Pencere(QWidget):
             globals()["SIMGE_FONTU"] = "Segoe MDL2 Assets"
 
         self._durum = "KAPALI"
+        self._baslik = None              # Son gösterilen şarkı adı (dil değişince yeniden yazmak için)
         self._cerceve_renk = QColor(EKRANLAR["KAPALI"]["cerceve"])
         self._bant_renk = QColor(EKRANLAR["KAPALI"]["bant"])
         self._eski_cerceve = self._yeni_cerceve = QColor(self._cerceve_renk)   # Animasyonun başlangıç/bitiş renkleri
@@ -106,27 +102,35 @@ class Pencere(QWidget):
             self._yeni_cerceve, self._yeni_bant = QColor(ekran["cerceve"]), QColor(ekran["bant"])
             self._animasyon.stop()
             self._animasyon.start()
-        self._durum = durum
+        self._durum, self._baslik = durum, baslik
+        anahtar = durum if durum in EKRANLAR else "KAPALI"
 
         self.simge.setText(SIMGE[ekran["simge"]])
         self.simge.setStyleSheet(f"color:{ekran['simge_renk']}; font-family:'{SIMGE_FONTU}'; font-size:24px;")
-        self.baslik.setText(ekran["baslik"])
+        self.baslik.setText(yazi(f"{anahtar}.baslik"))
         self.baslik.setStyleSheet(f"color:{ekran['baslik_renk']}; font-size:18px; font-weight:600;")
-        self.alt_yazi.setText(ekran["alt"])
+        self.alt_yazi.setText(yazi(f"{anahtar}.alt"))
         self.alt_yazi.setStyleSheet(f"color:{ekran['alt_renk']}; font-size:12px;")
 
         etiket_simgesi = ETIKET_SIMGESI.get(durum)
         self.etiket_simge.setText(SIMGE[etiket_simgesi] if etiket_simgesi else "")
         self.etiket_simge.setVisible(bool(etiket_simgesi))
-        self.etiket.setText(ekran["etiket"])
+        self.etiket.setText(yazi(f"{anahtar}.etiket"))
 
         self.sarki.setText(self._sarki_metni(durum, baslik))
         self.sarki.setStyleSheet(f"color:{ekran['sarki_renk']}; font-size:14px;")
 
-        self.dugme.setText(ekran["dugme"])
+        self.dugme.setText(yazi(f"{anahtar}.dugme"))
         self.dugme.setProperty("dolu", durum == "KAPALI")      # Başlat dolu yeşil, Durdur çerçeveli
         self.dugme.style().unpolish(self.dugme)
         self.dugme.style().polish(self.dugme)
+
+        self.dil_dugmesi.setText(secili_dil().upper())
+        self.dil_dugmesi.setToolTip(yazi("dil_dugmesi_ipucu"))
+
+    def yazilari_yenile(self):
+        """Dil değişince bütün yazıları yeni dilde yeniden yazar (renk animasyonu olmadan)."""
+        self.durumu_goster(self._durum, self._baslik)
 
     # -----------------------------------------------------------------------
     # İÇ İŞLER
@@ -135,9 +139,9 @@ class Pencere(QWidget):
         if durum == "KAPALI":
             return "—"
         if durum == "SPOTIFY_BEKLENIYOR":
-            return "Spotify kapalı"
+            return yazi("sarki_spotify_kapali")
         if durum == "REKLAM":
-            return "Reklam"
+            return yazi("sarki_reklam")
         if not baslik:
             return "—"
         metin = baslik.replace(" - ", " — ", 1)            # "Sanatçı - Şarkı" -> "Sanatçı — Şarkı"
@@ -148,6 +152,9 @@ class Pencere(QWidget):
             QLabel { background: transparent; }
             QPushButton#pencere_dugmesi { color:#B4B2A9; background:transparent; border:none; font-size:12px; }
             QPushButton#pencere_dugmesi:hover { color:#F1EFE8; }
+            QPushButton#dil_dugmesi { color:#B4B2A9; background:transparent; border:1px solid #5F5E5A;
+                                      border-radius:4px; font-size:10px; font-weight:600; }
+            QPushButton#dil_dugmesi:hover { color:#F1EFE8; border-color:#B4B2A9; }
             QPushButton#ana_dugme { color:#D3D1C7; background:transparent; border:1px solid #888780;
                                     border-radius:8px; padding:9px; font-size:14px; }
             QPushButton#ana_dugme:hover { background:#3a3a37; }
@@ -171,7 +178,12 @@ class Pencere(QWidget):
             d.setCursor(Qt.PointingHandCursor)
         kucult.clicked.connect(self.showMinimized)
         kapat.clicked.connect(self.kapatma_istendi.emit)
-        cubuk.addWidget(ad); cubuk.addStretch(); cubuk.addWidget(kucult); cubuk.addWidget(kapat)
+        self.dil_dugmesi = QPushButton(); self.dil_dugmesi.setObjectName("dil_dugmesi")   # TR / EN
+        self.dil_dugmesi.setFixedSize(26, 18)
+        self.dil_dugmesi.setCursor(Qt.PointingHandCursor)
+        self.dil_dugmesi.clicked.connect(self.dil_istendi.emit)
+        cubuk.addWidget(ad); cubuk.addStretch(); cubuk.addWidget(self.dil_dugmesi); cubuk.addSpacing(4)
+        cubuk.addWidget(kucult); cubuk.addWidget(kapat)
         duzen.addLayout(cubuk)
 
         # --- Renkli bant ---
