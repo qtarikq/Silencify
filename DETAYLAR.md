@@ -1,5 +1,7 @@
 # Silencify: Detaylar
 
+[English](DETAILS.md) | **Türkçe**
+
 Spotify'da reklam çaldığında **Spotify'ın sesini otomatik olarak kısan**, reklam bitince geri açan küçük bir Windows uygulaması.
 
 > ⚠️ **Reklamı engellemez!** Reklam yine çalar, sadece sesi duyulmaz. Spotify'ın kendisine, hesabına ya da internet bağlantına hiçbir şekilde dokunmaz.

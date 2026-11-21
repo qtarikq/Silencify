@@ -1,15 +1,17 @@
 # Silencify
 
-Spotify'da reklam çaldığında sesi otomatik olarak kısan, reklam bitince geri açan küçük bir Windows uygulaması. (!REKLAM ENGELLEMEZ!)
+**English** | [Türkçe](README.tr.md)
 
-## Nasıl çalışır?
+A small Windows app that automatically mutes Spotify when an ad starts playing and unmutes it when the ad ends. (!IT DOES NOT BLOCK ADS!)
 
-1. Spotifyda müzik çalarken ne zaman reklama geçtiğini anlar.
-2. Reklam algılanınca Spotify'ın sesini kısar.
-3. Reklam bitince sesi geri açar.
+## How does it work?
 
-## Durum
+1. While Spotify is playing music, it detects when an ad starts.
+2. When an ad is detected, it mutes Spotify.
+3. When the ad ends, it unmutes Spotify.
 
-✅ v1.0.0: Çalışıyor.
+## Status
 
-Kurulum, kullanım ve diğer detaylar için: [DETAYLAR.md](DETAYLAR.md)
+✅ v1.0.0: Working.
+
+For installation, usage and more details: [DETAILS.md](DETAILS.md)
