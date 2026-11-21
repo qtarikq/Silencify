@@ -30,10 +30,12 @@ def karar_ver(baslik, sarki, sanatci):
         return "?"
     if baslik in DURAKLATMA_BASLIKLARI:      # 1. Duraklatılmış mı?
         return "DURDU"
-    if sanatci == "Spotify":                 # 2. Sanatçı Spotify mı?
-        return "REKLAM"
-    if bilinen_reklam_metni_mi(sarki):       # 2+. Bilinen bir reklam metni mi?
-        return "REKLAM"
+    if sanatci == "Spotify" or bilinen_reklam_metni_mi(sarki):   # 2. Medya bilgisi reklam diyor mu?
+        # Reklamda pencere başlığı = reklamın adı. Başlık farklıysa medya bilgisi
+        # henüz güncellenmemiş demektir (ör. reklam bitti, şarkı başladı): emin değiliz, bekle.
+        if baslik == sarki:
+            return "REKLAM"
+        return "?"
     if sanatci == "":                        # 3. Sanatçı boş mu?
         return "PODCAST"
     if " - " in baslik:                      # 4. Başlık "Sanatçı - Şarkı" formatında mı?

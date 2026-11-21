@@ -17,7 +17,11 @@ import psutil                      # Program numarasından program adını bulma
 import win32gui                    # Windows pencereleriyle konuşmak için
 import win32process                # Bir pencerenin hangi programa ait olduğunu bulmak için
 
-from gozlem import spotify_medya_bilgisi                            # Şarkı, sanatçı, durum
+from winrt.windows.media.control import (
+    GlobalSystemMediaTransportControlsSessionManager as MedyaYoneticisi,
+)
+
+from gozlem import DURUM_ADLARI                                     # ÇALIYOR / DURDU çevirisi
 from kural import karar_ver                                         # REKLAM / ŞARKI / PODCAST / DURDU
 from ses_deneme import sessiz_mi, sessize_al, spotify_ses_oturumlari  # Ses kısma / açma
 
@@ -32,6 +36,7 @@ KAPALI_ARALIGI = 5         # Spotify kapalıyken kaç saniyede bir bakılacak
 GEREKEN_TEKRAR = 2         # Bir karar kaç kontrol üst üste aynı olursa uygulanacak
 MEDYA_ZAMAN_SINIRI = 3     # Windows medya bilgisi için en fazla kaç saniye beklenecek
 SURE_SINIRI = 10           # Bir tur bundan uzun sürerse kara kutuya yaz (saniye)
+OTURUM_YENILEME_ARALIGI = 5  # Reklam boyunca kaç turda bir Spotify'ın ses kaynakları yeniden kısılacak
 
 YARDIMCI_PENCERELER = {"GDI+ Window (Spotify.exe)", "MSCTFIME UI", "Default IME"}
 
@@ -78,13 +83,36 @@ def spotify_ana_pencere_basligi():
     return en_buyuk_baslik
 
 
+# Windows'un medya yöneticisi. Her saniye baştan istemek bellek sızdırıyordu
+# (bkz. sizinti_olcumu.py), bu yüzden BİR KERE isteyip saklıyoruz.
+medya_yoneticisi = None
+
+
+async def spotify_medya_bilgisi():
+    """Windows medya bilgisinden (şarkı, sanatçı, durum) döndürür. Spotify yoksa None."""
+    global medya_yoneticisi                   # Dosyanın en üstündeki değişkeni değiştirebilmek için
+    if medya_yoneticisi is None:              # İlk sefer (ya da bir hatadan sonra) iste
+        medya_yoneticisi = await MedyaYoneticisi.request_async()
+    for oturum in medya_yoneticisi.get_sessions():
+        if "spotify" in oturum.source_app_user_model_id.lower():
+            bilgi = await oturum.try_get_media_properties_async()
+            durum_kodu = oturum.get_playback_info().playback_status
+            return bilgi.title, bilgi.artist, DURUM_ADLARI.get(durum_kodu, str(durum_kodu))
+    return None
+
+
 async def medya_bilgisi_zaman_sinirli():
     """Medya bilgisini okur; Windows MEDYA_ZAMAN_SINIRI saniyede cevap vermezse None döndürür."""
+    global medya_yoneticisi
     try:
         return await asyncio.wait_for(spotify_medya_bilgisi(), MEDYA_ZAMAN_SINIRI)
     except asyncio.TimeoutError:
         kaydet(f"UYARI: Medya bilgisi {MEDYA_ZAMAN_SINIRI} saniyede gelmedi, bu tur atlandı")
+        medya_yoneticisi = None               # Bir sorun var: bir sonraki turda yenisini iste
         return None
+    except Exception:
+        medya_yoneticisi = None               # Bir sorun var: bir sonraki turda yenisini iste
+        raise                                 # Hatayı ana döngüye ilet (orada kaydediliyor)
 
 
 # ---------------------------------------------------------------------------
@@ -97,6 +125,7 @@ async def ana_dongu():
     uygulanan_karar = None      # En son uygulanan (onaylanmış) karar
     uygulanan_baslik = None     # O karar verilirken pencere başlığı neydi (kayda yazmak için)
     spotify_acik = None         # Spotify'ın açık/kapalı durumu (değişince yazmak için)
+    reklam_turu = 0             # Sessize aldığımızdan beri kaç tur geçti
 
     kara_kutu = open(KARA_KUTU_DOSYASI, "a", encoding="utf-8")
     kara_kutu.write(f"\n--- {datetime.now():%Y-%m-%d %H:%M:%S} reklam_susturucu başladı ---\n")
@@ -144,7 +173,9 @@ async def ana_dongu():
                 aday_karar = karar
                 aday_sayisi = 1
 
-            if aday_sayisi < GEREKEN_TEKRAR or karar == "?":
+            # Sesi KISMAK için kararın üst üste GEREKEN_TEKRAR kez gelmesini bekle (yanlışlıkla kısmayalım).
+            # Sesi AÇMAK için bekleme: reklam bitti dendiği an şarkının başı kaçmasın.
+            if karar == "?" or (karar == "REKLAM" and aday_sayisi < GEREKEN_TEKRAR):
                 await asyncio.sleep(KONTROL_ARALIGI)
                 continue                       # Henüz emin değiliz, bir şey yapma
 
@@ -155,15 +186,19 @@ async def ana_dongu():
 
             # --- Kararı uygula ---
             if karar == "REKLAM":
-                oturumlar = spotify_ses_oturumlari()
                 if biz_kistik:
-                    sessize_al(oturumlar, True)   # Reklamda yeni ses kaynağı açıldıysa onu da kıs
-                elif oturumlar and sessiz_mi(oturumlar):
-                    pass                          # Sen zaten sessize almışsın, dokunma
-                elif oturumlar:
-                    sessize_al(oturumlar, True)
-                    biz_kistik = True
-                    kaydet("  -> Spotify sessize alındı")
+                    reklam_turu += 1
+                    if reklam_turu % OTURUM_YENILEME_ARALIGI == 0:      # Her saniye değil, 5 turda bir
+                        sessize_al(spotify_ses_oturumlari(), True)    # Yeni ses kaynağı açıldıysa onu da kıs
+                else:
+                    oturumlar = spotify_ses_oturumlari()
+                    if oturumlar and sessiz_mi(oturumlar):
+                        pass                          # Sen zaten sessize almışsın, dokunma
+                    elif oturumlar:
+                        sessize_al(oturumlar, True)
+                        biz_kistik = True
+                        reklam_turu = 0
+                        kaydet("  -> Spotify sessize alındı")
 
             elif karar in ("ŞARKI", "PODCAST"):
                 if biz_kistik:
