@@ -72,6 +72,8 @@ class ReklamSusturucu:
         self.calisiyor = True
         self.durum = "SPOTIFY_BEKLENIYOR"
         self.ses_kisik = KISTIM_NOTU.exists()     # Önceki çalışmadan not kaldıysa sesi biz kısmışız
+        self._dongu = asyncio.get_running_loop()  # durdur() başka bir thread'den çağrılabilsin diye
+        self._dur_isareti = asyncio.Event()       # durdur() bunu "kaldırınca" bekleme anında biter
 
         buyukse_kenara_al(KARA_KUTU_DOSYASI)      # Kara kutu 1 MB'ı geçtiyse eskisini kenara al
         kara_kutu = open(KARA_KUTU_DOSYASI, "a", encoding="utf-8")
@@ -92,7 +94,7 @@ class ReklamSusturucu:
                     bekleme = KONTROL_ARALIGI
                 finally:
                     faulthandler.cancel_dump_traceback_later()                   # Alarmı iptal et
-                await asyncio.sleep(bekleme)
+                await self._bekle(bekleme)
         finally:                                  # Durduruldu, Ctrl+C ya da hata: kıstığımız sesi aç
             faulthandler.cancel_dump_traceback_later()
             kara_kutu.close()
@@ -106,8 +108,21 @@ class ReklamSusturucu:
             self.kaydet("=== Reklam susturucu kapatıldı ===")
 
     def durdur(self):
-        """Motoru durdurur (en geç bir tur sonra durur, kıstığı sesi açar)."""
+        """
+        Motoru durdurur (kıstığı sesi açarak). Arayüzden, yani BAŞKA bir thread'den
+        çağrılabilir: bekleme anında kesilir, motor beklemesini bitirmeden durur.
+        """
         self.calisiyor = False
+        dongu = getattr(self, "_dongu", None)
+        if dongu is not None and not dongu.is_closed():
+            dongu.call_soon_threadsafe(self._dur_isareti.set)   # Motorun kendi thread'ine "dur" de
+
+    async def _bekle(self, saniye):
+        """'saniye' kadar bekler; durdur() çağrılırsa beklemeyi hemen bitirir."""
+        try:
+            await asyncio.wait_for(self._dur_isareti.wait(), saniye)
+        except asyncio.TimeoutError:
+            pass                                  # Süre doldu: normal, bir sonraki tura geç
 
     # -----------------------------------------------------------------------
     # BİR TUR: bak, karar ver, uygula. Bir sonraki tura kadar kaç saniye bekleneceğini döndürür.

@@ -23,3 +23,6 @@ KARA_KUTU = KAYIT_KLASORU / "kara_kutu.txt"
 # Program düzgün kapanamazsa (terminal × ile kapatıldı, çöktü, bilgisayar kapandı)
 # bir sonraki açılışta bu not sayesinde sesi kendisinin kıstığını hatırlar.
 KISTIM_NOTU = KAYIT_KLASORU / "kistim.txt"
+
+# Kullanıcının tercihleri (ör. açılışta otomatik başlasın mı)
+AYARLAR_DOSYASI = KAYIT_KLASORU / "ayarlar.json"

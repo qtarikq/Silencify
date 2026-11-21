@@ -114,7 +114,7 @@ def main():
         m.spotify_ses_oturumlari = lambda: list(oturumlar)
         m.spotify_ana_pencere_basligi = lambda: SENARYO[tur][0][0]
         m.spotify_medya_bilgisi = sahte_medya
-        m.asyncio.sleep = sahte_bekle
+        motor._bekle = sahte_bekle             # Motorun beklemesi yerine senaryonun bir sonraki turu
 
         asyncio.run(motor.calis())
         not_kaldi_mi = m.KISTIM_NOTU.exists()

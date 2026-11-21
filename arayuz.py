@@ -8,9 +8,9 @@ Pencere sadece GÖSTERİR: hangi ekranın görüneceğini dışarıdan söylerle
 Ekran değişince bant ve çerçeve renkleri yumuşakça (animasyonla) değişir.
 """
 
-from PySide6.QtCore import QPoint, QRectF, Qt, QVariantAnimation, Signal
-from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtCore import QRectF, Qt, QVariantAnimation, Signal
+from PySide6.QtGui import QColor, QFont, QFontDatabase, QIcon, QPainter, QPen, QPixmap
+from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 GENISLIK, YUKSEKLIK = 260, 290
 GECIS_SURESI = 450          # Ekranlar arası renk geçişi (milisaniye)
@@ -242,3 +242,83 @@ class Pencere(QWidget):
 
     def mouseReleaseEvent(self, _):
         self._surukleme = None
+
+
+# ---------------------------------------------------------------------------
+# SORU PENCERESİ (× düğmesi ve ilk açılış sorusu için)
+# ---------------------------------------------------------------------------
+class SoruPenceresi(QDialog):
+    """
+    Ana pencereyle aynı görünümde küçük bir soru penceresi.
+    secenekler: [(anahtar, düğme yazısı, vurgulu_mu), ...]
+    Kullanımı:  soru = SoruPenceresi(...);  soru.exec();  soru.secim  -> seçilen anahtar (kapatılırsa None)
+    """
+
+    def __init__(self, ust, baslik, metin, secenekler, cerceve="#888780"):
+        super().__init__(ust)
+        self.secim = None
+        self._cerceve = QColor(cerceve)
+        self.setWindowTitle(baslik)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setFixedWidth(GENISLIK + 20)
+        self.setStyleSheet("""
+            QLabel { background: transparent; }
+            QPushButton { color:#D3D1C7; background:transparent; border:1px solid #888780;
+                          border-radius:8px; padding:9px; font-size:13px; }
+            QPushButton:hover { background:#3a3a37; }
+            QPushButton[vurgulu="true"] { color:#04342C; background:#1D9E75; border:none; font-weight:600; }
+            QPushButton[vurgulu="true"]:hover { background:#25b385; }
+        """)
+        duzen = QVBoxLayout(self)
+        duzen.setContentsMargins(20, 18, 20, 18)
+        duzen.setSpacing(8)
+        b = QLabel(baslik)
+        b.setStyleSheet("color:#F1EFE8; font-size:16px; font-weight:600;")
+        m = QLabel(metin)
+        m.setWordWrap(True)
+        m.setStyleSheet("color:#B4B2A9; font-size:12px;")
+        duzen.addWidget(b)
+        duzen.addWidget(m)
+        duzen.addSpacing(6)
+        for anahtar, yazi, vurgulu in secenekler:
+            d = QPushButton(yazi)
+            d.setProperty("vurgulu", vurgulu)
+            d.setCursor(Qt.PointingHandCursor)
+            d.clicked.connect(lambda _=False, a=anahtar: self._sec(a))
+            duzen.addWidget(d)
+
+    def _sec(self, anahtar):
+        self.secim = anahtar
+        self.accept()
+
+    def paintEvent(self, _):
+        p = QPainter(self)
+        p.setRenderHint(QPainter.Antialiasing)
+        dis = QRectF(self.rect()).adjusted(1, 1, -1, -1)
+        p.setBrush(ZEMIN)
+        p.setPen(QPen(self._cerceve, 2))
+        p.drawRoundedRect(dis, 12, 12)
+
+
+# ---------------------------------------------------------------------------
+# TEPSİ SİMGESİ: durumun renginde, ortasında durumun simgesi olan küçük kare
+# ---------------------------------------------------------------------------
+def durum_simgesi(durum):
+    """Bildirim alanı (saatin yanı) için durumun renginde bir simge çizer."""
+    ekran = EKRANLAR.get(durum, EKRANLAR["KAPALI"])
+    boyut = 64
+    resim = QPixmap(boyut, boyut)
+    resim.fill(Qt.transparent)
+    p = QPainter(resim)
+    p.setRenderHint(QPainter.Antialiasing)
+    p.setPen(Qt.NoPen)
+    p.setBrush(QColor(ekran["cerceve"]))
+    p.drawRoundedRect(QRectF(2, 2, boyut - 4, boyut - 4), 14, 14)
+    font = QFont(SIMGE_FONTU if SIMGE_FONTU in QFontDatabase.families() else "Segoe MDL2 Assets")
+    font.setPixelSize(36)
+    p.setFont(font)
+    p.setPen(QColor("#FFFFFF"))
+    p.drawText(QRectF(0, 0, boyut, boyut), Qt.AlignCenter, SIMGE[ekran["simge"]])
+    p.end()
+    return QIcon(resim)
