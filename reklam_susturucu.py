@@ -13,6 +13,7 @@ import asyncio                     # async/await ile bekleme işleri için
 import faulthandler                # Takılma olursa programın nerede beklediğini yazmak için
 from datetime import datetime      # Saati yazmak için
 
+from kayit import buyukse_kenara_al, kayitci_olustur                 # Kayıt tutma (otomatik silmeli)
 from kural import karar_ver                                         # REKLAM / ŞARKI / PODCAST / DURDU
 from spotify import (                                               # Spotify ve Windows ile konuşma
     medya_yoneticisini_sifirla,
@@ -41,12 +42,12 @@ OTURUM_YENILEME_ARALIGI = 5  # Reklam boyunca kaç turda bir Spotify'ın ses kay
 # ---------------------------------------------------------------------------
 # 3. FONKSİYONLAR
 # ---------------------------------------------------------------------------
+kayitci = kayitci_olustur("susturucu", KAYIT_DOSYASI)
+
+
 def kaydet(mesaj):
-    """Mesajı saatiyle birlikte hem ekrana hem kayıt dosyasına yazar."""
-    satir = f"{datetime.now():%H:%M:%S}  {mesaj}"
-    print(satir)
-    with open(KAYIT_DOSYASI, "a", encoding="utf-8") as dosya:
-        dosya.write(satir + "\n")
+    """Mesajı saatiyle birlikte hem ekrana hem kayıt dosyasına yazar (dosya 1 MB'ı geçince eskiler silinir)."""
+    kayitci.info(mesaj)
 
 
 def spotify_sessize_al():
@@ -99,11 +100,12 @@ async def ana_dongu():
     kistigimiz = set()          # Kıstığımız ses kaynaklarının kimlikleri
     serbest = False             # Bu reklam arasında sesi kullanıcı açtı mı? (açtıysa dokunmuyoruz)
 
+    buyukse_kenara_al(KARA_KUTU_DOSYASI)        # Kara kutu 1 MB'ı geçtiyse eskisini kenara al
     kara_kutu = open(KARA_KUTU_DOSYASI, "a", encoding="utf-8")
     kara_kutu.write(f"\n--- {datetime.now():%Y-%m-%d %H:%M:%S} reklam_susturucu başladı ---\n")
     kara_kutu.flush()
 
-    kaydet("=== Reklam susturucu başladı (durdurmak için Ctrl+C) ===")
+    kaydet(f"=== Reklam susturucu başladı ({datetime.now():%d.%m.%Y}) (durdurmak için Ctrl+C) ===")
     if biz_kistik:
         kaydet('Önceki çalışmadan kalan "kıstım" notu bulundu, ses sırası gelince açılacak')
 
