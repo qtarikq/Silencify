@@ -5,7 +5,7 @@ Kullanımı (proje klasöründe, sanal ortam açıkken):
     pip install -r requirements-gelistirme.txt     # bir kere
     python paketle.py
 
-Sonuç:  dist/SpotifyReklamSusturucu.exe
+Sonuç:  dist/Silencify.exe
 
 Adımlar:
 1. Programın simgesinden Windows'un istediği .ico dosyasını üretir.
@@ -22,12 +22,11 @@ from PySide6.QtCore import QBuffer, QIODevice
 from PySide6.QtWidgets import QApplication
 
 from simge import uygulama_simgesi
-from surum import SURUM
+from surum import ACIKLAMA, AD, SURUM
 
 PROJE = Path(__file__).resolve().parent
 CALISMA = PROJE / "build"                 # PyInstaller'ın ara dosyaları (GitHub'a gitmez)
 CIKTI = PROJE / "dist"                    # Hazır .exe buraya düşer (GitHub'a gitmez)
-AD = "SpotifyReklamSusturucu"
 
 
 def ico_olustur(hedef):
@@ -60,8 +59,8 @@ def surum_bilgisi_olustur(hedef):
                     fileType=0x1, subtype=0x0, date=(0, 0)),
   kids=[
     StringFileInfo([StringTable('041F04B0', [
-      StringStruct('ProductName', 'Spotify Reklam Susturucu'),
-      StringStruct('FileDescription', 'Spotify Reklam Susturucu'),
+      StringStruct('ProductName', '{AD}'),
+      StringStruct('FileDescription', '{AD} - {ACIKLAMA}'),
       StringStruct('FileVersion', '{SURUM}'),
       StringStruct('ProductVersion', '{SURUM}'),
       StringStruct('CompanyName', 'qtarikq'),

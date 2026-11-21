@@ -1,4 +1,4 @@
-# Spotify Reklam Susturucu
+# Silencify
 
 Spotify'da reklam çaldığında sesi otomatik olarak kısan, reklam bitince geri açan küçük bir Windows uygulaması. (!REKLAM ENGELLEMEZ!)
 

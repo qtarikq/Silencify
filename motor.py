@@ -1,5 +1,5 @@
 """
-Reklam susturucunun MOTORU (beyni).
+Silencify'ın MOTORU (beyni).
 
 ReklamSusturucu sınıfı bir TV kumandası gibidir:
 - Düğmeleri:  calis()  ve  durdur()
@@ -17,6 +17,7 @@ from datetime import datetime      # Saati yazmak için
 
 from kayit import buyukse_kenara_al
 from kural import karar_ver
+from surum import AD
 from spotify import (
     medya_yoneticisini_sifirla,
     sessiz_mi,
@@ -80,7 +81,7 @@ class ReklamSusturucu:
         kara_kutu.write(f"\n--- {datetime.now():%Y-%m-%d %H:%M:%S} motor başladı ---\n")
         kara_kutu.flush()
 
-        self.kaydet(f"=== Reklam susturucu başladı ({datetime.now():%d.%m.%Y}) ===")
+        self.kaydet(f"=== {AD} başladı ({datetime.now():%d.%m.%Y}) ===")
         if self.ses_kisik:
             self.kaydet('Önceki çalışmadan kalan "kıstım" notu bulundu, ses sırası gelince açılacak')
 
@@ -105,7 +106,7 @@ class ReklamSusturucu:
                     self.kaydet('  -> Spotify kapalı, ses açılamadı; "kıstım" notu bir sonraki açılış için bırakıldı')
             self.calisiyor = False
             self.durum = "KAPALI"
-            self.kaydet("=== Reklam susturucu kapatıldı ===")
+            self.kaydet(f"=== {AD} kapatıldı ===")
 
     def durdur(self):
         """

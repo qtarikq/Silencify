@@ -1,5 +1,5 @@
 """
-Spotify Reklam Susturucu - terminal sürümü
+Silencify - terminal sürümü
 
 Spotify'da reklam çalınca Spotify'ın sesini kısar, reklam bitince geri açar.
 Sadece kendi kıstığı sesi açar; sen Spotify'ı kendin sessize aldıysan dokunmaz.
@@ -16,6 +16,7 @@ import asyncio
 
 from kayit import kayitci_olustur
 from motor import ReklamSusturucu
+from surum import AD
 from tek_kopya import zaten_calisiyor_mu
 from yollar import SUSTURUCU_KAYDI
 
@@ -24,7 +25,7 @@ kayitci = kayitci_olustur("susturucu", SUSTURUCU_KAYDI)   # Ekrana + dosyaya (1 
 
 if __name__ == "__main__":
     if zaten_calisiyor_mu():
-        print("Reklam susturucu zaten çalışıyor (terminalde ya da pencerede). İkinci kopya açılmadı.")
+        print(f"{AD} zaten çalışıyor (terminalde ya da pencerede). İkinci kopya açılmadı.")
         raise SystemExit
     motor = ReklamSusturucu(kaydet=kayitci.info)
     try:

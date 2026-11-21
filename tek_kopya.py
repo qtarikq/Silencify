@@ -11,7 +11,9 @@ import win32api
 import win32event
 import winerror
 
-KILIT_ADI = "SpotifyReklamSusturucu_TekKopya"
+from surum import AD
+
+KILIT_ADI = f"{AD}_TekKopya"
 _kilit = None                   # Program açık kaldığı sürece kilit burada tutulur
 
 

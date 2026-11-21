@@ -1,5 +1,5 @@
 """
-Spotify Reklam Susturucu - pencereli sürüm
+Silencify - pencereli sürüm
 
 Çalıştırmak için:  python uygulama.py
 
@@ -25,7 +25,7 @@ from kayit import kayitci_olustur
 from motor import ReklamSusturucu
 from simge import durum_hali, durum_simgesi, uygulama_simgesi
 from spotify import medya_yoneticisini_sifirla
-from surum import SURUM
+from surum import AD, SURUM
 from tek_kopya import zaten_calisiyor_mu
 from yollar import SUSTURUCU_KAYDI
 
@@ -57,7 +57,7 @@ class Uygulama:
         # --- Bildirim alanı simgesi ve sağ tık menüsü ---
         self.tepsi = QSystemTrayIcon(durum_simgesi("KAPALI"))
         self.menu = QMenu()
-        baslik = self.menu.addAction(f"Reklam susturucu  v{SURUM}")
+        baslik = self.menu.addAction(f"{AD}  v{SURUM}")
         baslik.setEnabled(False)                     # Tıklanamaz, sadece bilgi
         self.menu.addSeparator()
         self.menu.addAction("Pencereyi göster", self.goster)
@@ -68,6 +68,7 @@ class Uygulama:
         self.menu_otomatik.toggled.connect(self.otomatik_ayari_degisti)
         self.menu_windows = self.menu.addAction("Windows açılınca başlat")
         self.menu_windows.setCheckable(True)
+        baslangic.eski_kayitlari_tasi()   # Eski adla açılış kaydı varsa yeni ada taşı
         if baslangic.acik_mi():
             baslangic.ac()        # Program taşındıysa açılış kaydı yeni yerini göstersin (kaydı tazele)
         self.menu_windows.setChecked(baslangic.acik_mi())
@@ -94,7 +95,7 @@ class Uygulama:
             self.pencere.show()
             soru = SoruPenceresi(
                 self.pencere, "Hoş geldin!",
-                "Program açıldığında reklam susturucu kendiliğinden başlasın mı? "
+                f"Program açıldığında {AD} kendiliğinden başlasın mı? "
                 "Bunu sonradan saatin yanındaki simgeye sağ tıklayarak değiştirebilirsin.",
                 [("evet", "Açılınca otomatik başlasın", True),
                  ("hayir", "Ben elimle başlatayım", False)],
@@ -157,7 +158,7 @@ class Uygulama:
         if hal != self._son_hal:                 # Simge sadece büyük değişimlerde değişir (sakin dursun)
             self._son_hal = hal
             self.tepsi.setIcon(durum_simgesi(durum))
-        ipucu = f"Reklam susturucu: {DURUM_ADI.get(durum, durum)}"
+        ipucu = f"{AD}: {DURUM_ADI.get(durum, durum)}"
         if baslik and durum in ("ŞARKI", "PODCAST", "DURDU"):
             ipucu += f"\n{baslik}"
         self.tepsi.setToolTip(ipucu[:127])       # Windows ipucu uzunluk sınırı
@@ -179,7 +180,7 @@ class Uygulama:
         if soru.secim == "arka":
             self.pencere.hide()
             if not self._tepsi_bilgisi_verildi:
-                self.tepsi.showMessage("Reklam susturucu arka planda çalışıyor",
+                self.tepsi.showMessage(f"{AD} arka planda çalışıyor",
                                        "Pencereyi açmak için saatin yanındaki simgeye tıkla.",
                                        durum_simgesi(self._son_durum or "KAPALI"), 4000)
                 self._tepsi_bilgisi_verildi = True
@@ -228,7 +229,7 @@ def main():
         if arka_planda:
             return                               # Açılışta sessizce: uyarı göstermeden çık
         SoruPenceresi(None, "Zaten çalışıyor",
-                      "Reklam susturucu zaten açık (pencerede, saatin yanında ya da terminalde). "
+                      f"{AD} zaten açık (pencerede, saatin yanında ya da terminalde). "
                       "İkinci kopya açılmadı.",
                       [("tamam", "Tamam", True)]).exec()
         return

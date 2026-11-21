@@ -12,8 +12,10 @@ import sys
 import winreg
 from pathlib import Path
 
+from surum import AD, ESKI_ADLAR
+
 RUN_ANAHTARI = r"Software\Microsoft\Windows\CurrentVersion\Run"
-DEGER_ADI = "SpotifyReklamSusturucu"
+DEGER_ADI = AD
 ARKA_PLAN_ISARETI = "--arka-plan"     # Windows başlatınca pencere açılmasın, tepsiye yerleşsin
 
 
@@ -40,6 +42,25 @@ def ac(anahtar=RUN_ANAHTARI):
     """Programı açılış listesine ekler."""
     with winreg.CreateKey(winreg.HKEY_CURRENT_USER, anahtar) as k:
         winreg.SetValueEx(k, DEGER_ADI, 0, winreg.REG_SZ, baslatma_komutu())
+
+
+def eski_kayitlari_tasi(anahtar=RUN_ANAHTARI):
+    """
+    Program eski bir adla açılış listesine eklendiyse o kaydı siler ve yeni adla ekler.
+    (Ad değiştiğinde 'Windows açılınca başlat' seçeneği kaybolmasın, eski kayıt da ortada kalmasın.)
+    """
+    tasindi = False
+    for eski_ad in ESKI_ADLAR:
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, anahtar, 0,
+                                winreg.KEY_QUERY_VALUE | winreg.KEY_SET_VALUE) as k:
+                winreg.QueryValueEx(k, eski_ad)
+                winreg.DeleteValue(k, eski_ad)
+                tasindi = True
+        except FileNotFoundError:
+            pass
+    if tasindi:
+        ac(anahtar)
 
 
 def kapat(anahtar=RUN_ANAHTARI):

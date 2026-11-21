@@ -1,5 +1,5 @@
 """
-Reklam susturucunun penceresi (PySide6).
+Silencify penceresi (PySide6).
 
 Pencere sadece GÖSTERİR: hangi ekranın görüneceğini dışarıdan söylerler
 (durumu_goster). Motoru çalıştırmak/durdurmak bu dosyanın işi değildir.
@@ -10,6 +10,7 @@ Ekran değişince bant ve çerçeve renkleri yumuşakça (animasyonla) değişir
 
 from PySide6.QtCore import QRectF, Qt, QVariantAnimation, Signal
 from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
+from surum import AD
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 GENISLIK, YUKSEKLIK = 260, 290
@@ -66,14 +67,14 @@ def _karistir(renk1, renk2, oran):
 
 
 class Pencere(QWidget):
-    """Reklam susturucunun küçük, sabit boyutlu, çerçevesiz penceresi."""
+    """Silencify'ın küçük, sabit boyutlu, çerçevesiz penceresi."""
 
     dugmeye_basildi = Signal()      # Başlat/Durdur düğmesine basılınca
     kapatma_istendi = Signal()      # × düğmesine basılınca (ne yapılacağına dışarısı karar verir)
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Reklam susturucu")
+        self.setWindowTitle(AD)
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.Window)
         self.setAttribute(Qt.WA_TranslucentBackground)     # Yuvarlak köşeler için
         self.setFixedSize(GENISLIK, YUKSEKLIK)
@@ -160,7 +161,7 @@ class Pencere(QWidget):
         # --- Başlık çubuğu (sürüklenebilir) ---
         cubuk = QHBoxLayout()
         cubuk.setContentsMargins(12, 6, 6, 6)
-        ad = QLabel("Reklam susturucu")
+        ad = QLabel(AD)
         ad.setStyleSheet("color:#B4B2A9; font-size:12px;")
         kucult = QPushButton(chr(0xE921)); kucult.setObjectName("pencere_dugmesi")
         kapat = QPushButton(chr(0xE8BB)); kapat.setObjectName("pencere_dugmesi")

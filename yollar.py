@@ -7,7 +7,7 @@ Program iki şekilde çalışabilir:
 - TEK DOSYALIK .EXE OLARAK: .exe çalışırken kendini Windows'un GEÇİCİ bir klasörüne açar
   ve kapanınca o klasör silinir. Bu yüzden kalıcı olması gereken her şey (kayıtlar,
   ayarlar, "kıstım" notu) Windows'un programlara ayırdığı kalıcı klasöre yazılır:
-  C:\\Users\\<ad>\\AppData\\Local\\SpotifyReklamSusturucu
+  C:\\Users\\<ad>\\AppData\\Local\\Silencify
 
 Bütün yollar burada hesaplanır; programın geri kalanı nerede çalıştığını bilmek zorunda değil.
 Kayıt klasörü yoksa otomatik oluşturulur.
@@ -17,7 +17,9 @@ import os
 import sys
 from pathlib import Path   # Dosya yollarıyla çalışmak için (Python'la birlikte geliyor)
 
-UYGULAMA_ADI = "SpotifyReklamSusturucu"
+from surum import AD, ESKI_ADLAR
+
+UYGULAMA_ADI = AD
 
 # .exe olarak mı çalışıyoruz? (PyInstaller .exe'yi oluştururken sys.frozen'ı True yapar)
 EXE_MI = getattr(sys, "frozen", False)
@@ -32,6 +34,14 @@ if EXE_MI:
 else:
     GOMULU_KLASOR = PROJE_KLASORU
     KAYIT_KLASORU = PROJE_KLASORU / "git-ignore-dosyalari"   # .gitignore'da, GitHub'a gitmez
+
+if EXE_MI and not KAYIT_KLASORU.exists():
+    # Program eski bir adla kullanıldıysa ayarlarını ve kayıtlarını yeni ada taşı
+    for eski_ad in ESKI_ADLAR:
+        eski_klasor = KAYIT_KLASORU.with_name(eski_ad)
+        if eski_klasor.is_dir():
+            eski_klasor.rename(KAYIT_KLASORU)
+            break
 
 KAYIT_KLASORU.mkdir(parents=True, exist_ok=True)   # Yoksa oluştur; varsa hiçbir şey yapma
 

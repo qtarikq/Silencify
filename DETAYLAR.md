@@ -1,4 +1,4 @@
-# Spotify Reklam Susturucu: Detaylar
+# Silencify: Detaylar
 
 Spotify'da reklam çaldığında **Spotify'ın sesini otomatik olarak kısan**, reklam bitince geri açan küçük bir Windows uygulaması.
 
@@ -8,15 +8,15 @@ Spotify'da reklam çaldığında **Spotify'ın sesini otomatik olarak kısan**, 
 
 ## Özellikler
 
-- 🔇 **Sadece Spotify'ın sesi kısılır.** Bilgisayarın geri kalan sesleri (YouTube, Discord, oyun...) etkilenmez.
-- 🎚️ **Ses seviyene dokunmaz.** Spotify'ı "sessiz" düğmesiyle kapatıp açar, reklamdan sonra aynı seviyeden devam edersin.
-- 🎙️ **Podcast'leri tanır**, podcast'lerde sesi kısmaz.
-- 🙋 **Son söz senin.** Spotify'ı kendin sessize aldıysan program dokunmaz. Reklam sırasında sesi kendin açarsan o reklam arası boyunca tekrar kısmaz.
-- 🛟 **Ses kapalı kalmaz.** Program beklenmedik şekilde kapansa bile (çökme, bilgisayarın kapanması) bir sonraki açılışta kıstığı sesi geri açar.
-- 🔔 **Saatin yanında sakin bir simge:** yeşil = çalışıyor, mor = Spotify bekleniyor, gri = durduruldu.
-- 🚀 **İstersen Windows açılınca başlar**, Spotify açılana kadar sessizce bekler.
-- 🌍 **Dilden bağımsız:** Türkçe, İngilizce ya da başka dildeki reklamları tanır.
-- 🪶 **Hafif:** ~40 MB bellek, neredeyse sıfır işlemci kullanımı.
+-  **Sadece Spotify'ın sesi kısılır.** Bilgisayarın geri kalan sesleri (YouTube, Discord, oyun...) etkilenmez.
+-  **Ses seviyene dokunmaz.** Spotify'ı "sessiz" düğmesiyle kapatıp açar, reklamdan sonra aynı seviyeden devam edersin.
+-  **Podcast'leri tanır**, podcast'lerde sesi kısmaz.
+-  **Son söz senin.** Spotify'ı kendin sessize aldıysan program dokunmaz. Reklam sırasında sesi kendin açarsan o reklam arası boyunca tekrar kısmaz.
+-  **Ses kapalı kalmaz.** Program beklenmedik şekilde kapansa bile (çökme, bilgisayarın kapanması) bir sonraki açılışta kıstığı sesi geri açar.
+-  **Saatin yanında sakin bir simge:** yeşil = çalışıyor, mor = Spotify bekleniyor, gri = durduruldu.
+-  **İstersen Windows açılınca başlar**, Spotify açılana kadar sessizce bekler.
+-  **Dilden bağımsız:** Türkçe, İngilizce ya da başka dildeki reklamları tanır.
+-  **Hafif:** ~40 MB bellek, neredeyse sıfır işlemci kullanımı.
 
 ## Nasıl çalışır?
 
@@ -28,18 +28,18 @@ Sonra şu soruları **sırayla** sorar, ilk "evet"te karar verir:
 
 | Sıra | Soru | Karar |
 |---|---|---|
-| 1 | Başlık "Spotify Free / Premium" mu? | ⏸️ Duraklatıldı |
-| 2 | Medya bilgisi reklam diyor mu? (sanatçı "Spotify" ya da bilinen bir reklam metni) | 📢 Reklam |
-| 3 | Sanatçı boş mu? | 🎙️ Podcast |
-| 4 | Başlık "Sanatçı - Şarkı" biçiminde mi? | 🎵 Şarkı |
-| 5 | Hiçbiri değil | 📢 Reklam |
+| 1 | Başlık "Spotify Free / Premium" mu? |  Duraklatıldı |
+| 2 | Medya bilgisi reklam diyor mu? (sanatçı "Spotify" ya da bilinen bir reklam metni) |  Reklam |
+| 3 | Sanatçı boş mu? |  Podcast |
+| 4 | Başlık "Sanatçı - Şarkı" biçiminde mi? |  Şarkı |
+| 5 | Hiçbiri değil |  Reklam |
 
 Kural, gerçek dinleme kayıtlarından toplanan örneklerle test edildi (`testler/test_kural.py`).
 
 ## Kurulum
 
-1. [Releases](../../releases) sayfasından `SpotifyReklamSusturucu.exe` dosyasını indir.
-2. Çift tıkla. Bu kadar. 🎉
+1. [Releases](../../releases) sayfasından `Silencify.exe` dosyasını indir.
+2. Çift tıkla. Bu kadar. 
 
 Kurulum sihirbazı yok, Python ya da başka bir program gerekmez. (Windows 10/11)
 
@@ -49,7 +49,7 @@ Kurulum sihirbazı yok, Python ya da başka bir program gerekmez. (Windows 10/11
 >
 > İlk açılış birkaç saniye sürebilir: tek dosyalık program açılırken kendini hazırlar.
 
-Ayarların ve kayıtların yeri: `%LOCALAPPDATA%\SpotifyReklamSusturucu`
+Ayarların ve kayıtların yeri: `%LOCALAPPDATA%\Silencify`
 Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows açılınca başlatmayı açtıysan önce menüden kapat).
 
 ## Kullanım
@@ -83,7 +83,7 @@ python testler/test_senaryo.py    # Motorun davranışı (sahte bir Spotify ile)
 
 ## Durum
 
-✅ **v1.0.0**: Reklam tanıma, ses kısma, arayüz ve Windows ile başlama çalışıyor.
+ **v1.0.0**: Reklam tanıma, ses kısma, arayüz ve Windows ile başlama çalışıyor.
 
 **Bilinen eksik:** Spotify'ın ana penceresi "en büyük pencere" olarak bulunuyor; mini oynatıcı ana pencereden büyük yapılırsa program şaşırabilir.
 
