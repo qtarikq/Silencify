@@ -1,7 +1,9 @@
 comtypes==1.5.0
 psutil==7.2.2
 pycaw==20260927
+PySide6_Essentials==6.12.0
 pywin32==312
+shiboken6==6.12.0
 typing_extensions==4.16.0
 winrt-runtime==4.2.0
 winrt-Windows.Foundation==4!10.0.28000.2957
