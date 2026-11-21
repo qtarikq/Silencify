@@ -1,0 +1,3 @@
+# Geliştirici araçları (programı KULLANMAK için gerekmez, sadece .exe oluşturmak için)
+-r requirements.txt
+pyinstaller==6.22.3

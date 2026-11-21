@@ -1,3 +1,6 @@
 git-ignore-dosyalari/
 .venv/
 __pycache__/
+# PyInstaller'ın ara dosyaları ve hazır .exe (GitHub Releases'e ayrıca yüklenir)
+build/
+dist/

@@ -43,6 +43,15 @@ Kural, gerçek dinleme kayıtlarından toplanan örneklerle test edildi (`testle
 
 Kurulum sihirbazı yok, Python ya da başka bir program gerekmez. (Windows 10/11)
 
+> **"Windows bilgisayarınızı korudu" uyarısı çıkarsa:** **Ek bilgi → Yine de çalıştır**'a bas.
+> Bu uyarı, dijital imzası (code signing sertifikası) olmayan bütün küçük, bağımsız programlarda çıkar;
+> programın zararlı olduğu anlamına gelmez. Kodun tamamı bu sayfada açık, istersen inceleyebilirsin.
+>
+> İlk açılış birkaç saniye sürebilir: tek dosyalık program açılırken kendini hazırlar.
+
+Ayarların ve kayıtların yeri: `%LOCALAPPDATA%\SpotifyReklamSusturucu`
+Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows açılınca başlatmayı açtıysan önce menüden kapat).
+
 ## Kullanım
 
 - **×** düğmesi: "Arka planda çalışsın" ya da "Uygulama tamamen kapansın" seçeneklerini sorar.
