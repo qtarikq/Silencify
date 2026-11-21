@@ -11,6 +11,9 @@ from pathlib import Path   # Dosya yollarıyla çalışmak için (Python'la birl
 # Bu dosyanın (yollar.py) bulunduğu klasör = projenin klasörü
 PROJE_KLASORU = Path(__file__).resolve().parent
 
+# Hazır simge resimlerinin konabileceği klasör (GitHub'a gider). Boşsa simge kodla çizilir.
+SIMGE_KLASORU = PROJE_KLASORU / "simgeler"
+
 # Kayıtların tutulduğu klasör (.gitignore'da, GitHub'a gitmez)
 KAYIT_KLASORU = PROJE_KLASORU / "git-ignore-dosyalari"
 KAYIT_KLASORU.mkdir(exist_ok=True)    # Yoksa oluştur; varsa hiçbir şey yapma

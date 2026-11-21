@@ -9,7 +9,7 @@ Ekran değişince bant ve çerçeve renkleri yumuşakça (animasyonla) değişir
 """
 
 from PySide6.QtCore import QRectF, Qt, QVariantAnimation, Signal
-from PySide6.QtGui import QColor, QFont, QFontDatabase, QIcon, QPainter, QPen, QPixmap
+from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 GENISLIK, YUKSEKLIK = 260, 290
@@ -299,26 +299,3 @@ class SoruPenceresi(QDialog):
         p.setBrush(ZEMIN)
         p.setPen(QPen(self._cerceve, 2))
         p.drawRoundedRect(dis, 12, 12)
-
-
-# ---------------------------------------------------------------------------
-# TEPSİ SİMGESİ: durumun renginde, ortasında durumun simgesi olan küçük kare
-# ---------------------------------------------------------------------------
-def durum_simgesi(durum):
-    """Bildirim alanı (saatin yanı) için durumun renginde bir simge çizer."""
-    ekran = EKRANLAR.get(durum, EKRANLAR["KAPALI"])
-    boyut = 64
-    resim = QPixmap(boyut, boyut)
-    resim.fill(Qt.transparent)
-    p = QPainter(resim)
-    p.setRenderHint(QPainter.Antialiasing)
-    p.setPen(Qt.NoPen)
-    p.setBrush(QColor(ekran["cerceve"]))
-    p.drawRoundedRect(QRectF(2, 2, boyut - 4, boyut - 4), 14, 14)
-    font = QFont(SIMGE_FONTU if SIMGE_FONTU in QFontDatabase.families() else "Segoe MDL2 Assets")
-    font.setPixelSize(36)
-    p.setFont(font)
-    p.setPen(QColor("#FFFFFF"))
-    p.drawText(QRectF(0, 0, boyut, boyut), Qt.AlignCenter, SIMGE[ekran["simge"]])
-    p.end()
-    return QIcon(resim)

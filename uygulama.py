@@ -19,9 +19,11 @@ from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
 import ayarlar
-from arayuz import EKRANLAR, Pencere, SoruPenceresi, durum_simgesi
+import baslangic
+from arayuz import EKRANLAR, Pencere, SoruPenceresi
 from kayit import kayitci_olustur
 from motor import ReklamSusturucu
+from simge import durum_hali, durum_simgesi, uygulama_simgesi
 from spotify import medya_yoneticisini_sifirla
 from tek_kopya import zaten_calisiyor_mu
 from yollar import SUSTURUCU_KAYDI
@@ -42,10 +44,12 @@ class Uygulama:
         self.motor = None
         self.is_parcacigi = None         # Motorun çalıştığı thread
         self._son_durum = None
+        self._son_hal = None             # Tepsi simgesinin hâli (calisiyor / bekliyor / durdu)
         self._tepsi_bilgisi_verildi = False
 
         # --- Pencere ---
         self.pencere = Pencere()
+        self.pencere.setWindowIcon(uygulama_simgesi())
         self.pencere.dugmeye_basildi.connect(self.baslat_durdur)
         self.pencere.kapatma_istendi.connect(self.kapatma_sorusu)
 
@@ -58,6 +62,10 @@ class Uygulama:
         self.menu_otomatik.setCheckable(True)
         self.menu_otomatik.setChecked(bool(self.ayarlar["otomatik_basla"]))
         self.menu_otomatik.toggled.connect(self.otomatik_ayari_degisti)
+        self.menu_windows = self.menu.addAction("Windows açılınca başlat")
+        self.menu_windows.setCheckable(True)
+        self.menu_windows.setChecked(baslangic.acik_mi())
+        self.menu_windows.toggled.connect(self.windows_ayari_degisti)
         self.menu.addSeparator()
         self.menu.addAction("Tamamen kapat", self.cik)
         self.tepsi.setContextMenu(self.menu)
@@ -72,9 +80,12 @@ class Uygulama:
     # -----------------------------------------------------------------------
     # Açılış
     # -----------------------------------------------------------------------
-    def ac(self):
-        self.pencere.show()
+    def ac(self, arka_planda=False):
+        """arka_planda=True: Windows açılışta başlattı; pencere açılmaz, sadece tepsi simgesi."""
+        if not arka_planda:
+            self.pencere.show()
         if self.ayarlar["otomatik_basla"] is None:          # İlk açılış: kullanıcıya sor
+            self.pencere.show()
             soru = SoruPenceresi(
                 self.pencere, "Hoş geldin!",
                 "Program açıldığında reklam susturucu kendiliğinden başlasın mı? "
@@ -135,8 +146,11 @@ class Uygulama:
         self.pencere.durumu_goster(durum, baslik)
         if durum != self._son_durum:
             self._son_durum = durum
-            self.tepsi.setIcon(durum_simgesi(durum))
             self.menu_baslat.setText("Başlat" if durum == "KAPALI" else "Durdur")
+        hal = durum_hali(durum)
+        if hal != self._son_hal:                 # Simge sadece büyük değişimlerde değişir (sakin dursun)
+            self._son_hal = hal
+            self.tepsi.setIcon(durum_simgesi(durum))
         ipucu = f"Reklam susturucu: {DURUM_ADI.get(durum, durum)}"
         if baslik and durum in ("ŞARKI", "PODCAST", "DURDU"):
             ipucu += f"\n{baslik}"
@@ -179,6 +193,18 @@ class Uygulama:
         self.ayarlar["otomatik_basla"] = acik
         ayarlar.yaz(self.ayarlar)
 
+    def windows_ayari_degisti(self, acik):
+        if acik:
+            baslangic.ac()
+            if not self.ayarlar["otomatik_basla"]:
+                self.tepsi.showMessage(
+                    "Windows açılınca başlayacak",
+                    "İpucu: Reklamların açılışta hemen susturulması için "
+                    "'Açılışta otomatik başlat' seçeneğini de işaretleyebilirsin.",
+                    uygulama_simgesi(), 6000)
+        else:
+            baslangic.kapat()
+
     def cik(self):
         """Motoru durdurur (kıstığı sesi açar), simgeyi kaldırır ve programı kapatır."""
         self.zamanlayici.stop()
@@ -190,14 +216,18 @@ class Uygulama:
 def main():
     qt = QApplication(sys.argv)
     qt.setQuitOnLastWindowClosed(False)          # Pencere gizlenince program kapanmasın (tepside yaşasın)
+    qt.setWindowIcon(uygulama_simgesi())
+    arka_planda = baslangic.ARKA_PLAN_ISARETI in sys.argv    # Windows açılışta mı başlattı?
     if zaten_calisiyor_mu():
+        if arka_planda:
+            return                               # Açılışta sessizce: uyarı göstermeden çık
         SoruPenceresi(None, "Zaten çalışıyor",
                       "Reklam susturucu zaten açık (pencerede, saatin yanında ya da terminalde). "
                       "İkinci kopya açılmadı.",
                       [("tamam", "Tamam", True)]).exec()
         return
     uygulama = Uygulama(qt)
-    uygulama.ac()
+    uygulama.ac(arka_planda)
     sys.exit(qt.exec())
 
 

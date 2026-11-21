@@ -9,6 +9,7 @@ Python'un hazır 'logging' kütüphanesini kullanır:
 """
 
 import logging                                       # Python'la birlikte geliyor
+import sys
 from logging.handlers import RotatingFileHandler     # Boyut sınırına gelince dosyayı "döndüren" yazıcı
 
 MAKS_BOYUT = 1_000_000     # Bir kayıt dosyası en fazla ~1 MB olsun
@@ -33,9 +34,10 @@ def kayitci_olustur(ad, dosya, maks_boyut=MAKS_BOYUT, yedek_sayisi=YEDEK_SAYISI)
     dosyaya.setFormatter(BICIM)
     kayitci.addHandler(dosyaya)
 
-    ekrana = logging.StreamHandler()
-    ekrana.setFormatter(BICIM)
-    kayitci.addHandler(ekrana)
+    if sys.stderr is not None:          # pythonw (terminalsiz) ile çalışınca ekran yok, atla
+        ekrana = logging.StreamHandler()
+        ekrana.setFormatter(BICIM)
+        kayitci.addHandler(ekrana)
     return kayitci
 
 
