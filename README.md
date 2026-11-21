@@ -2,7 +2,9 @@
 
 **English** | [Türkçe](README.tr.md)
 
-A small Windows app that automatically mutes Spotify when an ad starts playing and unmutes it when the ad ends. (!IT DOES NOT BLOCK ADS!)
+A small Windows app that automatically mutes Spotify when an ad starts playing and unmutes it when the ad end. (!IT DOES NOT BLOCK ADS!)
+
+<img width="1775" height="412" alt="image" src="https://github.com/user-attachments/assets/77552826-c4f8-4925-aa47-bbc5df7a4ec7" />
 
 ## Download
 
