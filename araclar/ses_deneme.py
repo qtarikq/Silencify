@@ -7,7 +7,7 @@ Ne olursa olsun (hata, Ctrl+C) program biterken ses geri açılır.
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "silencify"))   # Uygulamanın modüllerini (motor, spotify...) bulabilmek için
 
 
 # ---------------------------------------------------------------------------

@@ -18,13 +18,16 @@ import subprocess
 import sys
 from pathlib import Path
 
+PROJE = Path(__file__).resolve().parent
+KOD = PROJE / "silencify"                 # Uygulamanın kodu
+sys.path.insert(0, str(KOD))              # simge.py ve surum.py'yi bulabilmek için
+
 from PySide6.QtCore import QBuffer, QIODevice
 from PySide6.QtWidgets import QApplication
 
 from simge import uygulama_simgesi
 from surum import ACIKLAMA, AD, SURUM
 
-PROJE = Path(__file__).resolve().parent
 CALISMA = PROJE / "build"                 # PyInstaller'ın ara dosyaları (GitHub'a gitmez)
 CIKTI = PROJE / "dist"                    # Hazır .exe buraya düşer (GitHub'a gitmez)
 
@@ -89,12 +92,12 @@ def main():
         "--name", AD,
         "--icon", str(ico),
         "--version-file", str(surum_dosyasi),
-        "--add-data", f"{PROJE / 'simgeler'};simgeler",   # simgeler/ klasörünü .exe'nin içine göm
+        "--add-data", f"{KOD / 'simgeler'};simgeler",   # simgeler/ klasörünü .exe'nin içine göm
         "--collect-submodules", "winrt",              # winrt parçalarının hepsi dahil olsun
         "--workpath", str(CALISMA),
         "--specpath", str(CALISMA),
         "--distpath", str(CIKTI),
-        str(PROJE / "uygulama.py"),
+        str(KOD / "uygulama.py"),
     ]
     subprocess.run(komut, check=True)
 

@@ -8,7 +8,7 @@ Hepsi TAMAM değilse kural bir şeyi bozmuş demektir.
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "silencify"))   # Uygulamanın modüllerini (motor, spotify...) bulabilmek için
 
 
 from kural import karar_ver

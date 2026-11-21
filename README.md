@@ -20,4 +20,4 @@ Just double-click the file, no installation needed. If Windows shows "Windows pr
 
 ✅ v1.0.0: Working.
 
-For installation, usage and more details: [DETAILS.md](DETAILS.md)
+For installation, usage and more details: [DETAILS.md](docs/DETAILS.md)

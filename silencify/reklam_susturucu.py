@@ -5,11 +5,11 @@ Spotify'da reklam çalınca Spotify'ın sesini kısar, reklam bitince geri açar
 Sadece kendi kıstığı sesi açar; sen Spotify'ı kendin sessize aldıysan dokunmaz.
 Reklam sırasında sesi sen açarsan o reklam arası boyunca dokunmaz.
 
-Çalıştırmak için:  python reklam_susturucu.py
+Çalıştırmak için:  python silencify/reklam_susturucu.py
 Durdurmak için:    Ctrl+C (kapanırken ses kısıksa geri açılır)
 
 Asıl iş motor.py'de yapılır; bu dosya sadece motoru terminalde çalıştırır.
-Pencereli sürüm için: python uygulama.py
+Pencereli sürüm için: python silencify/uygulama.py
 """
 
 import asyncio

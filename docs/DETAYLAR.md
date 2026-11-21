@@ -6,7 +6,7 @@ Spotify'da reklam çaldığında **Spotify'ın sesini otomatik olarak kısan**, 
 
 > ⚠️ **Reklamı engellemez!** Reklam yine çalar, sadece sesi duyulmaz. Spotify'ın kendisine, hesabına ya da internet bağlantına hiçbir şekilde dokunmaz.
 
-![Uygulamanın ekranları](docs/ekranlar.png)
+![Uygulamanın ekranları](ekranlar.png)
 
 ## Özellikler
 
@@ -40,7 +40,7 @@ Kural, gerçek dinleme kayıtlarından toplanan örneklerle test edildi (`testle
 
 ## Kurulum
 
-1. [Releases](../../releases) sayfasından `Silencify.exe` dosyasını indir.
+1. [Releases](../../../releases) sayfasından `Silencify.exe` dosyasını indir.
 2. Çift tıkla. Bu kadar. 
 
 Kurulum sihirbazı yok, Python ya da başka bir program gerekmez. (Windows 10/11)
@@ -64,15 +64,15 @@ Programı kaldırmak için `.exe`'yi ve bu klasörü silmen yeterli (Windows aç
 
 | Dosya | Görevi |
 |---|---|
-| `uygulama.py` | Pencereli sürümün başlatıcısı: pencere + motor + tepsi simgesi |
-| `reklam_susturucu.py` | Terminal sürümünün başlatıcısı |
-| `motor.py` | Programın beyni: bak, karar ver, sesi kıs/aç |
-| `kural.py` | "Şu an ne çalıyor?" kararı |
-| `spotify.py` | Spotify ve Windows ile konuşan her şey |
-| `arayuz.py` | Pencere ve soru pencereleri |
-| `simge.py` | Programın simgesi (kolay değiştirilebilir, bkz. `simgeler/`) |
-| `kayit.py`, `yollar.py`, `ayarlar.py` | Kayıt tutma, dosya yolları, kullanıcı tercihleri |
-| `baslangic.py`, `tek_kopya.py` | Windows açılınca başlatma, tek kopya koruması |
+| `silencify/uygulama.py` | Pencereli sürümün başlatıcısı: pencere + motor + tepsi simgesi |
+| `silencify/reklam_susturucu.py` | Terminal sürümünün başlatıcısı |
+| `silencify/motor.py` | Programın beyni: bak, karar ver, sesi kıs/aç |
+| `silencify/kural.py` | "Şu an ne çalıyor?" kararı |
+| `silencify/spotify.py` | Spotify ve Windows ile konuşan her şey |
+| `silencify/arayuz.py` | Pencere ve soru pencereleri |
+| `silencify/simge.py` | Programın simgesi (kolay değiştirilebilir, bkz. `silencify/simgeler/`) |
+| `silencify/kayit.py`, `yollar.py`, `ayarlar.py` | Kayıt tutma, dosya yolları, kullanıcı tercihleri |
+| `silencify/baslangic.py`, `tek_kopya.py` | Windows açılınca başlatma, tek kopya koruması |
 | `testler/` | Otomatik testler |
 | `araclar/` | Geliştirme sırasında kullanılan gözlem ve ölçüm araçları |
 
@@ -91,4 +91,4 @@ python testler/test_senaryo.py    # Motorun davranışı (sahte bir Spotify ile)
 
 ## Lisans
 
-[MIT](LICENSE): Dilediğin gibi kullanabilir, değiştirebilir, paylaşabilirsin.
+[MIT](../LICENSE): Dilediğin gibi kullanabilir, değiştirebilir, paylaşabilirsin.

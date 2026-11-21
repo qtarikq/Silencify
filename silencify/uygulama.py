@@ -1,7 +1,7 @@
 """
 Silencify - pencereli sürüm
 
-Çalıştırmak için:  python uygulama.py
+Çalıştırmak için:  python silencify/uygulama.py
 
 Parçalar:
 - Pencere (arayuz.py): sadece gösterir.

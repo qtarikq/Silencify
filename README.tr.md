@@ -20,4 +20,4 @@ Dosyaya çift tıklaman yeterli, kurulum gerekmez. Windows "Windows bilgisayarı
 
 ✅ v1.0.0: Çalışıyor.
 
-Kurulum, kullanım ve diğer detaylar için: [DETAYLAR.md](DETAYLAR.md)
+Kurulum, kullanım ve diğer detaylar için: [DETAYLAR.md](docs/DETAYLAR.md)

@@ -6,7 +6,7 @@ A small Windows app that **automatically mutes Spotify** when an ad plays and un
 
 > ⚠️ **It does not block ads!** The ad still plays, you just don't hear it. It never touches Spotify itself, your account or your internet connection.
 
-![The app's screens](docs/ekranlar.png)
+![The app's screens](ekranlar.png)
 
 *The app's interface is currently in Turkish.*
 
@@ -42,7 +42,7 @@ The rule was tested with examples collected from real listening logs (`testler/t
 
 ## Installation
 
-1. Download `Silencify.exe` from the [Releases](../../releases) page.
+1. Download `Silencify.exe` from the [Releases](../../../releases) page.
 2. Double-click it. That's it.
 
 No installer, no Python or other programs needed. (Windows 10/11)
@@ -66,15 +66,15 @@ To uninstall, just delete the `.exe` and this folder (if you enabled "start with
 
 | File | Purpose |
 |---|---|
-| `uygulama.py` | Launcher of the windowed version: window + engine + tray icon |
-| `reklam_susturucu.py` | Launcher of the terminal version |
-| `motor.py` | The brain of the app: look, decide, mute/unmute |
-| `kural.py` | The "what is playing right now?" decision |
-| `spotify.py` | Everything that talks to Spotify and Windows |
-| `arayuz.py` | The window and dialogs |
-| `simge.py` | The app icon (easy to replace, see `simgeler/`) |
-| `kayit.py`, `yollar.py`, `ayarlar.py` | Logging, file paths, user preferences |
-| `baslangic.py`, `tek_kopya.py` | Start with Windows, single-instance protection |
+| `silencify/uygulama.py` | Launcher of the windowed version: window + engine + tray icon |
+| `silencify/reklam_susturucu.py` | Launcher of the terminal version |
+| `silencify/motor.py` | The brain of the app: look, decide, mute/unmute |
+| `silencify/kural.py` | The "what is playing right now?" decision |
+| `silencify/spotify.py` | Everything that talks to Spotify and Windows |
+| `silencify/arayuz.py` | The window and dialogs |
+| `silencify/simge.py` | The app icon (easy to replace, see `silencify/simgeler/`) |
+| `silencify/kayit.py`, `yollar.py`, `ayarlar.py` | Logging, file paths, user preferences |
+| `silencify/baslangic.py`, `tek_kopya.py` | Start with Windows, single-instance protection |
 | `testler/` | Automated tests |
 | `araclar/` | Observation and measurement tools used during development |
 
@@ -93,4 +93,4 @@ python testler/test_senaryo.py    # Engine behaviour (with a fake Spotify)
 
 ## License
 
-[MIT](LICENSE): You are free to use, modify and share it.
+[MIT](../LICENSE): You are free to use, modify and share it.

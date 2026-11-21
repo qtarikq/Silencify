@@ -2,7 +2,7 @@
 Dosya yolları.
 
 Program iki şekilde çalışabilir:
-- KAYNAK KODDAN (python uygulama.py): her şey proje klasöründe durur.
+- KAYNAK KODDAN (python silencify/uygulama.py): her şey proje klasöründe durur.
   Kayıtlar ve ayarlar: git-ignore-dosyalari/  (GitHub'a gitmez)
 - TEK DOSYALIK .EXE OLARAK: .exe çalışırken kendini Windows'un GEÇİCİ bir klasörüne açar
   ve kapanınca o klasör silinir. Bu yüzden kalıcı olması gereken her şey (kayıtlar,
@@ -24,15 +24,17 @@ UYGULAMA_ADI = AD
 # .exe olarak mı çalışıyoruz? (PyInstaller .exe'yi oluştururken sys.frozen'ı True yapar)
 EXE_MI = getattr(sys, "frozen", False)
 
-# Bu dosyanın (yollar.py) bulunduğu klasör = projenin klasörü
-PROJE_KLASORU = Path(__file__).resolve().parent
+# Bu dosyanın (yollar.py) bulunduğu klasör = uygulamanın kod klasörü (silencify/)
+KOD_KLASORU = Path(__file__).resolve().parent
+# Onun bir üstü = projenin ana klasörü
+PROJE_KLASORU = KOD_KLASORU.parent
 
 if EXE_MI:
     # .exe'nin İÇİNE gömülü dosyalar (simgeler) geçici klasörde: sys._MEIPASS
-    GOMULU_KLASOR = Path(getattr(sys, "_MEIPASS", PROJE_KLASORU))
+    GOMULU_KLASOR = Path(getattr(sys, "_MEIPASS", KOD_KLASORU))
     KAYIT_KLASORU = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / UYGULAMA_ADI
 else:
-    GOMULU_KLASOR = PROJE_KLASORU
+    GOMULU_KLASOR = KOD_KLASORU
     KAYIT_KLASORU = PROJE_KLASORU / "git-ignore-dosyalari"   # .gitignore'da, GitHub'a gitmez
 
 if EXE_MI and not KAYIT_KLASORU.exists():
