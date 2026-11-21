@@ -29,6 +29,13 @@ VAKALAR = [
     ("Yeni reklam veren (gece)",         "Bu Pazar Bim'de", "Bu Pazar Bim'de", "Bim", "REKLAM"),
     ("Reklam başladı, medya 1 sn geride","ŞİMDİ DİNLE", "Aşk Nereden Nereye", "Gripin", "REKLAM"),
 
+    # --- İngilizce reklam metinleri (çeviri, gerçek kayıtta henüz görülmedi) ---
+    ("İngilizce: Listen now",            "Listen now", "Listen now", "Some Brand", "REKLAM"),
+    ("İngilizce: LISTEN NOW (büyük harf)","LISTEN NOW", "LISTEN NOW", "Some Brand", "REKLAM"),
+    ("İngilizce: Download and listen.",  "Download and listen.", "Download and listen.", "Some Brand", "REKLAM"),
+    ("İngilizce: DOWNLOAD AND LISTEN",   "DOWNLOAD AND LISTEN", "DOWNLOAD AND LISTEN", "Some Brand", "REKLAM"),
+    ("İng. reklam bitti, medya geride",  "Gripin - Aşk Nereden Nereye", "LISTEN NOW", "Some Brand", "?"),
+
     # --- Reklam bitti ama medya bilgisi geride (gece görülen gecikme) ---
     ("Spotify reklamı bitti, medya geride", "Kubilay Karça - Ayaza Serdim", "İndir ve dinle.", "Spotify", "?"),
     ("ADÉLA reklamı bitti, medya geride",   "Gripin - Aşk Nereden Nereye", "ŞİMDİ DİNLE", "ADÉLA", "?"),

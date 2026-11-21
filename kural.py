@@ -7,7 +7,10 @@ böylece test ettiğimiz kural ile programın kullandığı kural hep aynı kal�
 """
 
 DURAKLATMA_BASLIKLARI = {"Spotify Free", "Spotify Premium"}
-BILINEN_REKLAM_METINLERI = {"şimdi dinle", "indir ve dinle"}   # Küçük harfle, noktasız
+BILINEN_REKLAM_METINLERI = {
+    "şimdi dinle", "indir ve dinle",          # Türkçe (gerçek kayıtlardan)
+    "listen now", "download and listen",      # İngilizce (çeviri, gerçek kayıtta henüz görülmedi)
+}   # Küçük harfle, noktasız
 
 
 def turkce_kucuk_harf(metin):
@@ -17,7 +20,10 @@ def turkce_kucuk_harf(metin):
 
 def bilinen_reklam_metni_mi(sarki):
     """Şarkı adı bilinen bir reklam metniyse True döndürür. Harf büyüklüğüne ve sondaki noktaya bakmaz."""
-    return turkce_kucuk_harf(sarki).strip().rstrip(".") in BILINEN_REKLAM_METINLERI
+    # Hem Türkçe hem İngilizce kuralla küçültüp ikisine de bakarız:
+    # Türkçe kural "LISTEN"i "lısten" yapar, İngilizce kural da "İNDİR"i bozar.
+    adaylar = {turkce_kucuk_harf(sarki), sarki.lower()}
+    return any(aday.strip().rstrip(".") in BILINEN_REKLAM_METINLERI for aday in adaylar)
 
 
 def karar_ver(baslik, sarki, sanatci):
