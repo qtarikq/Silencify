@@ -90,7 +90,7 @@ python testler/test_dil.py        # Every text exists in both languages
 
 ## Status
 
-**v1.0.0**: Ad detection, muting, interface and start with Windows are working.
+**v1.1.0**: Ad detection, muting, interface and start with Windows are working. The app can be used in English or Turkish.
 
 **Known limitation:** Spotify's main window is found as "the largest window"; if the mini player is made larger than the main window, the app may get confused.
 

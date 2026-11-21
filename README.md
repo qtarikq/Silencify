@@ -18,6 +18,6 @@ Just double-click the file, no installation needed. If Windows shows "Windows pr
 
 ## Status
 
-✅ v1.0.0: Working.
+✅ v1.1.0: Working. Now in English and Turkish.
 
 For installation, usage and more details: [DETAILS.md](docs/DETAILS.md)

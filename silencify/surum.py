@@ -10,7 +10,7 @@ GitHub'da yayınlarken etiket (tag) olarak da bu numara kullanılır: v1.0.0
 
 AD = "Silencify"
 ACIKLAMA = "Spotify reklamlarını susturur"
-SURUM = "1.0.0"
+SURUM = "1.1.0"
 
 # Eski adlar: önceki sürümlerden kalan ayar klasörü ve açılış kaydı yeni ada taşınsın diye
 ESKI_ADLAR = ["SpotifyReklamSusturucu"]

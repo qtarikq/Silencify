@@ -88,7 +88,7 @@ python testler/test_dil.py        # İki dilde de bütün yazılar var mı
 
 ## Durum
 
- **v1.0.0**: Reklam tanıma, ses kısma, arayüz ve Windows ile başlama çalışıyor.
+**v1.1.0**: Reklam tanıma, ses kısma, arayüz ve Windows ile başlama çalışıyor. Uygulama Türkçe ya da İngilizce kullanılabiliyor.
 
 **Bilinen eksik:** Spotify'ın ana penceresi "en büyük pencere" olarak bulunuyor; mini oynatıcı ana pencereden büyük yapılırsa program şaşırabilir.
 

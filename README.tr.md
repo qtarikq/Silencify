@@ -18,6 +18,6 @@ Dosyaya çift tıklaman yeterli, kurulum gerekmez. Windows "Windows bilgisayarı
 
 ## Durum
 
-✅ v1.0.0: Çalışıyor.
+✅ v1.1.0: Çalışıyor. Artık Türkçe ve İngilizce.
 
 Kurulum, kullanım ve diğer detaylar için: [DETAYLAR.md](docs/DETAYLAR.md)

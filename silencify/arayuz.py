@@ -13,7 +13,7 @@ from PySide6.QtGui import QColor, QFont, QFontDatabase, QPainter, QPen
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from dil import secili_dil, yazi
-from surum import AD
+from surum import AD, SURUM
 
 GENISLIK, YUKSEKLIK = 260, 290
 GECIS_SURESI = 450          # Ekranlar arası renk geçişi (milisaniye)
@@ -170,6 +170,8 @@ class Pencere(QWidget):
         cubuk.setContentsMargins(12, 6, 6, 6)
         ad = QLabel(AD)
         ad.setStyleSheet("color:#B4B2A9; font-size:12px;")
+        surum = QLabel(f"v{SURUM}")                         # Sürüm numarası (surum.py'den), soluk ve küçük
+        surum.setStyleSheet("color:#6E6D68; font-size:10px;")
         kucult = QPushButton(chr(0xE921)); kucult.setObjectName("pencere_dugmesi")
         kapat = QPushButton(chr(0xE8BB)); kapat.setObjectName("pencere_dugmesi")
         for d in (kucult, kapat):
@@ -182,7 +184,7 @@ class Pencere(QWidget):
         self.dil_dugmesi.setFixedSize(26, 18)
         self.dil_dugmesi.setCursor(Qt.PointingHandCursor)
         self.dil_dugmesi.clicked.connect(self.dil_istendi.emit)
-        cubuk.addWidget(ad); cubuk.addStretch(); cubuk.addWidget(self.dil_dugmesi); cubuk.addSpacing(4)
+        cubuk.addWidget(ad); cubuk.addSpacing(6); cubuk.addWidget(surum); cubuk.addStretch(); cubuk.addWidget(self.dil_dugmesi); cubuk.addSpacing(4)
         cubuk.addWidget(kucult); cubuk.addWidget(kapat)
         duzen.addLayout(cubuk)
 
