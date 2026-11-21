@@ -8,6 +8,11 @@ Spotify'a, sese ya da Windows'a dokunmaz; sadece metin okur.
 (Elenen FORMAT ve BİRLEŞİK kuralları Git geçmişinde: commit 1043518)
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
+
 # ---------------------------------------------------------------------------
 # 1. KÜTÜPHANELER (hepsi Python'la birlikte geliyor)
 # ---------------------------------------------------------------------------
@@ -64,7 +69,7 @@ def kural_senin(sarki, sanatci):
 # ---------------------------------------------------------------------------
 if not KAYIT_DOSYASI.exists():        # Gözlem kaydı yoksa (ör. proje yeni indirildiyse) çökme, açıkla
     print(f"Gözlem kaydı bulunamadı: {KAYIT_DOSYASI}")
-    print("Önce bir süre 'python gozlem.py' çalıştırıp kayıt topla.")
+    print("Önce bir süre 'python araclar/gozlem.py' çalıştırıp kayıt topla.")
     raise SystemExit
 
 print(f"{'SAAT':<9} {'ANA BAŞLIK':<38} {'SANATÇI':<12} {'SENİN':<7} {'PROGRAM':<8}")

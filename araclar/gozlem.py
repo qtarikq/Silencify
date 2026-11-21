@@ -6,6 +6,11 @@ Bir şey değiştiğinde saatiyle birlikte ekrana ve gozlem_kaydi.txt dosyasına
 Durdurmak için: Ctrl+C
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
+
 # ---------------------------------------------------------------------------
 # 1. KÜTÜPHANELER
 # ---------------------------------------------------------------------------

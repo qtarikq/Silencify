@@ -25,6 +25,7 @@ from kayit import kayitci_olustur
 from motor import ReklamSusturucu
 from simge import durum_hali, durum_simgesi, uygulama_simgesi
 from spotify import medya_yoneticisini_sifirla
+from surum import SURUM
 from tek_kopya import zaten_calisiyor_mu
 from yollar import SUSTURUCU_KAYDI
 
@@ -56,6 +57,9 @@ class Uygulama:
         # --- Bildirim alanı simgesi ve sağ tık menüsü ---
         self.tepsi = QSystemTrayIcon(durum_simgesi("KAPALI"))
         self.menu = QMenu()
+        baslik = self.menu.addAction(f"Reklam susturucu  v{SURUM}")
+        baslik.setEnabled(False)                     # Tıklanamaz, sadece bilgi
+        self.menu.addSeparator()
         self.menu.addAction("Pencereyi göster", self.goster)
         self.menu_baslat = self.menu.addAction("Başlat", self.baslat_durdur)
         self.menu_otomatik = self.menu.addAction("Açılışta otomatik başlat")
@@ -64,6 +68,8 @@ class Uygulama:
         self.menu_otomatik.toggled.connect(self.otomatik_ayari_degisti)
         self.menu_windows = self.menu.addAction("Windows açılınca başlat")
         self.menu_windows.setCheckable(True)
+        if baslangic.acik_mi():
+            baslangic.ac()        # Program taşındıysa açılış kaydı yeni yerini göstersin (kaydı tazele)
         self.menu_windows.setChecked(baslangic.acik_mi())
         self.menu_windows.toggled.connect(self.windows_ayari_degisti)
         self.menu.addSeparator()

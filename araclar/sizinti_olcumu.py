@@ -7,6 +7,11 @@ Hangi fonksiyon kaynak sızdırıyorsa onun satırında sayılar büyür.
 Hiçbir şeyi değiştirmez: ses kısmaz, Spotify'a dokunmaz, sadece okur.
 """
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
+
 import asyncio
 import gc                                   # Çöp toplayıcı: kullanılmayan nesneleri temizlemek için
 

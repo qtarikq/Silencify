@@ -6,8 +6,13 @@ tasarımı ve renk geçişlerini görebilirsin. Klavyeden de geçebilirsin:
   1 = Kapalı   2 = Spotify bekleniyor   3 = Şarkı   4 = Podcast   5 = Duraklatıldı   6 = Reklam
   Boşluk = otomatik dolaşmayı durdur/başlat     × = kapat
 
-Çalıştırmak için:  python arayuz_prototip.py
+Çalıştırmak için:  python araclar/arayuz_prototip.py
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
 
 import sys
 

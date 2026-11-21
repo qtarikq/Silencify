@@ -1,0 +1,83 @@
+# Spotify Reklam Susturucu: Detaylar
+
+Spotify'da reklam çaldığında **Spotify'ın sesini otomatik olarak kısan**, reklam bitince geri açan küçük bir Windows uygulaması.
+
+> ⚠️ **Reklamı engellemez!** Reklam yine çalar, sadece sesi duyulmaz. Spotify'ın kendisine, hesabına ya da internet bağlantına hiçbir şekilde dokunmaz.
+
+![Uygulamanın ekranları](docs/ekranlar.png)
+
+## Özellikler
+
+- 🔇 **Sadece Spotify'ın sesi kısılır.** Bilgisayarın geri kalan sesleri (YouTube, Discord, oyun...) etkilenmez.
+- 🎚️ **Ses seviyene dokunmaz.** Spotify'ı "sessiz" düğmesiyle kapatıp açar, reklamdan sonra aynı seviyeden devam edersin.
+- 🎙️ **Podcast'leri tanır**, podcast'lerde sesi kısmaz.
+- 🙋 **Son söz senin.** Spotify'ı kendin sessize aldıysan program dokunmaz. Reklam sırasında sesi kendin açarsan o reklam arası boyunca tekrar kısmaz.
+- 🛟 **Ses kapalı kalmaz.** Program beklenmedik şekilde kapansa bile (çökme, bilgisayarın kapanması) bir sonraki açılışta kıstığı sesi geri açar.
+- 🔔 **Saatin yanında sakin bir simge:** yeşil = çalışıyor, mor = Spotify bekleniyor, gri = durduruldu.
+- 🚀 **İstersen Windows açılınca başlar**, Spotify açılana kadar sessizce bekler.
+- 🌍 **Dilden bağımsız:** Türkçe, İngilizce ya da başka dildeki reklamları tanır.
+- 🪶 **Hafif:** ~40 MB bellek, neredeyse sıfır işlemci kullanımı.
+
+## Nasıl çalışır?
+
+Program saniyede bir Spotify'a bakar ve iki bilgiyi okur:
+1. **Spotify penceresinin başlığı** (şarkı çalarken `Sanatçı - Şarkı` yazar)
+2. **Windows'un medya bilgisi** (ses tuşlarına basınca çıkan kutucuktaki şarkı ve sanatçı)
+
+Sonra şu soruları **sırayla** sorar, ilk "evet"te karar verir:
+
+| Sıra | Soru | Karar |
+|---|---|---|
+| 1 | Başlık "Spotify Free / Premium" mu? | ⏸️ Duraklatıldı |
+| 2 | Medya bilgisi reklam diyor mu? (sanatçı "Spotify" ya da bilinen bir reklam metni) | 📢 Reklam |
+| 3 | Sanatçı boş mu? | 🎙️ Podcast |
+| 4 | Başlık "Sanatçı - Şarkı" biçiminde mi? | 🎵 Şarkı |
+| 5 | Hiçbiri değil | 📢 Reklam |
+
+Kural, gerçek dinleme kayıtlarından toplanan örneklerle test edildi (`testler/test_kural.py`).
+
+## Kurulum
+
+1. [Releases](../../releases) sayfasından `SpotifyReklamSusturucu.exe` dosyasını indir.
+2. Çift tıkla. Bu kadar. 🎉
+
+Kurulum sihirbazı yok, Python ya da başka bir program gerekmez. (Windows 10/11)
+
+## Kullanım
+
+- **×** düğmesi: "Arka planda çalışsın" ya da "Uygulama tamamen kapansın" seçeneklerini sorar.
+- **Saatin yanındaki simgeye sağ tık:** Başlat/Durdur, açılışta otomatik başlatma, Windows açılınca başlatma.
+- Program aynı anda yalnızca bir kez çalışabilir.
+
+## Proje yapısı
+
+| Dosya | Görevi |
+|---|---|
+| `uygulama.py` | Pencereli sürümün başlatıcısı: pencere + motor + tepsi simgesi |
+| `reklam_susturucu.py` | Terminal sürümünün başlatıcısı |
+| `motor.py` | Programın beyni: bak, karar ver, sesi kıs/aç |
+| `kural.py` | "Şu an ne çalıyor?" kararı |
+| `spotify.py` | Spotify ve Windows ile konuşan her şey |
+| `arayuz.py` | Pencere ve soru pencereleri |
+| `simge.py` | Programın simgesi (kolay değiştirilebilir, bkz. `simgeler/`) |
+| `kayit.py`, `yollar.py`, `ayarlar.py` | Kayıt tutma, dosya yolları, kullanıcı tercihleri |
+| `baslangic.py`, `tek_kopya.py` | Windows açılınca başlatma, tek kopya koruması |
+| `testler/` | Otomatik testler |
+| `araclar/` | Geliştirme sırasında kullanılan gözlem ve ölçüm araçları |
+
+## Testler
+
+```bash
+python testler/test_kural.py      # Reklam tanıma kuralı (gerçek vakalar)
+python testler/test_senaryo.py    # Motorun davranışı (sahte bir Spotify ile)
+```
+
+## Durum
+
+✅ **v1.0.0**: Reklam tanıma, ses kısma, arayüz ve Windows ile başlama çalışıyor.
+
+**Bilinen eksik:** Spotify'ın ana penceresi "en büyük pencere" olarak bulunuyor; mini oynatıcı ana pencereden büyük yapılırsa program şaşırabilir.
+
+## Lisans
+
+[MIT](LICENSE): Dilediğin gibi kullanabilir, değiştirebilir, paylaşabilirsin.

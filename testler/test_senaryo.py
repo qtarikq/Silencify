@@ -7,8 +7,13 @@ Gerçek Spotify'a, gerçek sese ve gerçek kayıt dosyalarına hiç dokunmaz:
 - Her önemli turda hem SES durumu hem motorun EKRANI (motor.durum) kontrol edilir.
 - Beklemeler (1-5 saniye) atlanır, test saniyeler içinde biter.
 
-Motora dokunduğun her seferde çalıştır:  python test_senaryo.py
+Motora dokunduğun her seferde çalıştır:  python testler/test_senaryo.py
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
 
 import asyncio
 import tempfile

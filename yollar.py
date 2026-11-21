@@ -1,22 +1,42 @@
 """
 Dosya yolları.
 
-Bütün dosya yolları programın KENDİ KONUMUNA göre hesaplanır;
-program hangi klasörden başlatılırsa başlatılsın aynı dosyaları kullanır.
-Kayıt klasörü yoksa (ör. proje GitHub'dan yeni indirildiyse) otomatik oluşturulur.
+Program iki şekilde çalışabilir:
+- KAYNAK KODDAN (python uygulama.py): her şey proje klasöründe durur.
+  Kayıtlar ve ayarlar: git-ignore-dosyalari/  (GitHub'a gitmez)
+- TEK DOSYALIK .EXE OLARAK: .exe çalışırken kendini Windows'un GEÇİCİ bir klasörüne açar
+  ve kapanınca o klasör silinir. Bu yüzden kalıcı olması gereken her şey (kayıtlar,
+  ayarlar, "kıstım" notu) Windows'un programlara ayırdığı kalıcı klasöre yazılır:
+  C:\\Users\\<ad>\\AppData\\Local\\SpotifyReklamSusturucu
+
+Bütün yollar burada hesaplanır; programın geri kalanı nerede çalıştığını bilmek zorunda değil.
+Kayıt klasörü yoksa otomatik oluşturulur.
 """
 
+import os
+import sys
 from pathlib import Path   # Dosya yollarıyla çalışmak için (Python'la birlikte geliyor)
+
+UYGULAMA_ADI = "SpotifyReklamSusturucu"
+
+# .exe olarak mı çalışıyoruz? (PyInstaller .exe'yi oluştururken sys.frozen'ı True yapar)
+EXE_MI = getattr(sys, "frozen", False)
 
 # Bu dosyanın (yollar.py) bulunduğu klasör = projenin klasörü
 PROJE_KLASORU = Path(__file__).resolve().parent
 
-# Hazır simge resimlerinin konabileceği klasör (GitHub'a gider). Boşsa simge kodla çizilir.
-SIMGE_KLASORU = PROJE_KLASORU / "simgeler"
+if EXE_MI:
+    # .exe'nin İÇİNE gömülü dosyalar (simgeler) geçici klasörde: sys._MEIPASS
+    GOMULU_KLASOR = Path(getattr(sys, "_MEIPASS", PROJE_KLASORU))
+    KAYIT_KLASORU = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / UYGULAMA_ADI
+else:
+    GOMULU_KLASOR = PROJE_KLASORU
+    KAYIT_KLASORU = PROJE_KLASORU / "git-ignore-dosyalari"   # .gitignore'da, GitHub'a gitmez
 
-# Kayıtların tutulduğu klasör (.gitignore'da, GitHub'a gitmez)
-KAYIT_KLASORU = PROJE_KLASORU / "git-ignore-dosyalari"
-KAYIT_KLASORU.mkdir(exist_ok=True)    # Yoksa oluştur; varsa hiçbir şey yapma
+KAYIT_KLASORU.mkdir(parents=True, exist_ok=True)   # Yoksa oluştur; varsa hiçbir şey yapma
+
+# Hazır simge resimlerinin konabileceği klasör (GitHub'a gider). Boşsa simge kodla çizilir.
+SIMGE_KLASORU = GOMULU_KLASOR / "simgeler"
 
 GOZLEM_KAYDI = KAYIT_KLASORU / "gozlem_kaydi.txt"
 SUSTURUCU_KAYDI = KAYIT_KLASORU / "susturucu_kaydi.txt"

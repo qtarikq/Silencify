@@ -2,9 +2,14 @@
 Reklam kuralının (kural.py -> karar_ver) otomatik testi.
 
 Gerçek gözlemlerden (gozlem_kaydi.txt, susturucu_kaydi.txt) alınmış vakalar.
-Kural her değiştiğinde çalıştır:  python test_kural.py
+Kural her değiştiğinde çalıştır:  python testler/test_kural.py
 Hepsi TAMAM değilse kural bir şeyi bozmuş demektir.
 """
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))   # Ana proje klasöründeki modülleri (motor, spotify...) bulabilmek için
+
 
 from kural import karar_ver
 
