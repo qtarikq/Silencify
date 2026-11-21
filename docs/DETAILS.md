@@ -6,9 +6,7 @@ A small Windows app that **automatically mutes Spotify** when an ad plays and un
 
 > ⚠️ **It does not block ads!** The ad still plays, you just don't hear it. It never touches Spotify itself, your account or your internet connection.
 
-![The app's screens](ekranlar.png)
-
-*The app's interface is currently in Turkish.*
+![The app's screens](screens.png)
 
 ## Features
 
@@ -20,6 +18,7 @@ A small Windows app that **automatically mutes Spotify** when an ad plays and un
 - **A calm tray icon next to the clock:** green = running, purple = waiting for Spotify, gray = stopped.
 - **Optionally starts with Windows** and quietly waits until Spotify is opened.
 - **Language independent:** recognizes ads in Turkish, English or any other language.
+- **English and Turkish interface:** switch with one click.
 - **Lightweight:** ~40 MB of memory, almost zero CPU usage.
 
 ## How does it work?
@@ -79,6 +78,20 @@ To uninstall, just delete the `.exe` and this folder (if you enabled "start with
 | `silencify/baslangic.py`, `tek_kopya.py` | Start with Windows, single-instance protection |
 | `testler/` | Automated tests |
 | `araclar/` | Observation and measurement tools used during development |
+
+## Running from source
+
+Needs Python 3.12 on Windows. In the project folder:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python silencify/uygulama.py            # Windowed version
+python silencify/reklam_susturucu.py    # Terminal version
+```
+
+To build `Silencify.exe` yourself: `pip install -r requirements-gelistirme.txt`, then `python paketle.py`. The file appears in `dist\`.
 
 ## Tests
 
