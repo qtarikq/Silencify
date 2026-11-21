@@ -1,19 +1,20 @@
 """
-Reklam susturucunun ana döngüsünü SAHTE bir Spotify ile test eder.
+Motoru (motor.py -> ReklamSusturucu) SAHTE bir Spotify ile test eder.
 
 Gerçek Spotify'a, gerçek sese ve gerçek kayıt dosyalarına hiç dokunmaz:
 - Spotify'ın penceresi, medya bilgisi ve ses kaynakları taklit edilir (mock).
-- Her tur ne çalacağı ve kullanıcının ne yapacağı aşağıdaki SENARYO'da yazılıdır.
-- Beklemeler (1 saniye) atlanır, test saniyeler içinde biter.
+- Her tur ne çalacağı ve o tur sonunda ne olacağı aşağıdaki SENARYO'da yazılıdır.
+- Her önemli turda hem SES durumu hem motorun EKRANI (motor.durum) kontrol edilir.
+- Beklemeler (1-5 saniye) atlanır, test saniyeler içinde biter.
 
-Ana döngüye dokunduğun her seferde çalıştır:  python test_senaryo.py
+Motora dokunduğun her seferde çalıştır:  python test_senaryo.py
 """
 
 import asyncio
 import tempfile
 from pathlib import Path
 
-import reklam_susturucu as r
+import motor as m
 
 # ---------------------------------------------------------------------------
 # 1. SAHTE SPOTIFY
@@ -40,43 +41,51 @@ oturumlar = [A, B]                      # Spotify'ın gerçekte de 2 ses kaynağ
 
 SARKI = ("Gripin - Aşk Nereden Nereye", ("Aşk Nereden Nereye", "Gripin", "ÇALIYOR"))
 REKLAM = ("ŞİMDİ DİNLE", ("ŞİMDİ DİNLE", "ADÉLA", "ÇALIYOR"))
+DURDU = ("Spotify Free", ("Aşk Nereden Nereye", "Gripin", "DURDU"))
+KAPALI = (None, None)                   # Spotify kapalı: pencere de yok, medya bilgisi de
 
 # ---------------------------------------------------------------------------
-# 2. SENARYO: her tur (ne çalıyor, tur sonunda ne oluyor)
+# 2. SENARYO
+# Her tur: (ne çalıyor, tur sonunda ne oluyor, beklenen SES durumu, beklenen EKRAN)
+# Beklenen ses: {kaynak: True=sessiz / False=açık}; None = bu turda kontrol etme
 # ---------------------------------------------------------------------------
-SENARYO = (
-    [(SARKI, None)] +                                   # tur 0
-    [(REKLAM, None)] * 2 +                              # tur 1-2: 2. reklam turunda kısılmalı
-    [(REKLAM, "kullanıcı A'yı açar")] +                 # tur 3
-    [(REKLAM, None)] * 7 +                              # tur 4-10: program fark edip dokunmamalı
-    [(SARKI, None)] +                                   # tur 11: reklam arası bitti
-    [(REKLAM, None)] * 2 +                              # tur 12-13: yeni reklam, yine kısılmalı
-    [(REKLAM, "Spotify yeni kaynak C açar")] +          # tur 14
-    [(REKLAM, None)] * 6 +                              # tur 15-20: C de kısılmalı
-    [(SARKI, None)] * 2                                 # tur 21-22: ses açılmalı
-)
-
-# Beklenen ses durumu: {tur: {kaynak: True=sessiz / False=açık}}
-BEKLENEN = {
-    0:  {"A": False, "B": False},
-    2:  {"A": True,  "B": True},                        # reklam onaylandı, kısıldı
-    7:  {"A": False, "B": False},                       # sen açtın -> B de açıldı
-    10: {"A": False, "B": False},                       # reklam boyunca tekrar kısılmadı
-    13: {"A": True,  "B": True},                        # yeni reklam arasında yine kısıldı
-    20: {"A": True,  "B": True, "C": True},             # yeni kaynak C de kısıldı
-    21: {"A": False, "B": False, "C": False},           # şarkı başladı, hepsi açıldı
-}
+S, Ac = True, False
+SENARYO = [
+    (SARKI,  None,                         {"A": Ac, "B": Ac},          "ŞARKI"),               # 0
+    (REKLAM, None,                         {"A": Ac, "B": Ac},          "ŞARKI"),               # 1 henüz emin değil
+    (REKLAM, None,                         {"A": S,  "B": S},           "REKLAM"),              # 2 kısıldı
+    (REKLAM, "kullanıcı A'yı açar",        None,                        "REKLAM"),              # 3
+    (REKLAM, None,                         None,                        None),                  # 4
+    (REKLAM, None,                         None,                        None),                  # 5
+    (REKLAM, None,                         None,                        None),                  # 6
+    (REKLAM, None,                         {"A": Ac, "B": Ac},          "REKLAM"),              # 7 fark etti, B'yi de açtı
+    (REKLAM, None,                         None,                        None),                  # 8
+    (REKLAM, None,                         None,                        None),                  # 9
+    (REKLAM, None,                         {"A": Ac, "B": Ac},          "REKLAM"),              # 10 tekrar kısmadı
+    (SARKI,  None,                         {"A": Ac, "B": Ac},          "ŞARKI"),               # 11 reklam arası bitti
+    (DURDU,  None,                         {"A": Ac, "B": Ac},          "DURDU"),               # 12 duraklatıldı
+    (SARKI,  None,                         None,                        "ŞARKI"),               # 13
+    (REKLAM, None,                         None,                        None),                  # 14
+    (REKLAM, None,                         {"A": S,  "B": S},           "REKLAM"),              # 15 yeni reklam: kısıldı
+    (REKLAM, "Spotify yeni kaynak C açar", None,                        None),                  # 16
+    (REKLAM, None,                         None,                        None),                  # 17
+    (REKLAM, None,                         None,                        None),                  # 18
+    (REKLAM, None,                         None,                        None),                  # 19
+    (REKLAM, None,                         None,                        None),                  # 20
+    (REKLAM, None,                         {"A": S, "B": S, "C": S},    "REKLAM"),              # 21 C de kısıldı
+    (KAPALI, None,                         {"A": S, "B": S, "C": S},    "SPOTIFY_BEKLENIYOR"),  # 22 Spotify kapandı
+    (KAPALI, None,                         None,                        "SPOTIFY_BEKLENIYOR"),  # 23
+    (SARKI,  None,                         {"A": Ac, "B": Ac, "C": Ac}, "ŞARKI"),               # 24 açıldı, ses açıldı
+    (SARKI,  None,                         None,                        "ŞARKI"),               # 25
+]
 
 # ---------------------------------------------------------------------------
-# 3. PROGRAMI SAHTE DÜNYAYA BAĞLA
+# 3. MOTORU SAHTE DÜNYAYA BAĞLA
 # ---------------------------------------------------------------------------
 tur = 0
 kayitlar = []
-ses_durumlari = {}
-
-
-class SenaryoBitti(Exception):
-    pass
+gozlemler = {}                          # {tur: (ses durumu, motor.durum)}
+motor = m.ReklamSusturucu(kaydet=lambda mesaj: kayitlar.append(f"tur {tur:>2}: {mesaj}"))
 
 
 async def sahte_medya():
@@ -84,54 +93,61 @@ async def sahte_medya():
 
 
 async def sahte_bekle(_):
-    """Programın 1 saniyelik beklemesi yerine: o anki ses durumunu not al, kullanıcı/Spotify eylemini yap."""
+    """Motorun beklemesi yerine: o anki durumu not al, sonra senaryodaki olayı gerçekleştir."""
     global tur
-    ses_durumlari[tur] = {o.InstanceIdentifier: bool(o.SimpleAudioVolume.GetMute()) for o in oturumlar}
-    eylem = SENARYO[tur][1]
-    if eylem == "kullanıcı A'yı açar":
+    gozlemler[tur] = ({o.InstanceIdentifier: bool(o.SimpleAudioVolume.GetMute()) for o in oturumlar},
+                      motor.durum)
+    olay = SENARYO[tur][1]
+    if olay == "kullanıcı A'yı açar":
         A.SimpleAudioVolume.sessiz = 0
-    elif eylem == "Spotify yeni kaynak C açar":
+    elif olay == "Spotify yeni kaynak C açar":
         oturumlar.append(C)
     tur += 1
     if tur >= len(SENARYO):
-        raise SenaryoBitti
+        motor.durdur()                  # Senaryo bitti: durdur düğmesine bas
 
 
 def main():
     with tempfile.TemporaryDirectory() as gecici:      # Sahte kayıtlar için geçici klasör (sonunda silinir)
-        r.KARA_KUTU_DOSYASI = Path(gecici) / "kara_kutu.txt"
-        r.KISTIM_NOTU = Path(gecici) / "kistim.txt"
-        r.kaydet = lambda mesaj: kayitlar.append(f"tur {tur:>2}: {mesaj}")
-        r.spotify_ses_oturumlari = lambda: list(oturumlar)
-        r.spotify_ana_pencere_basligi = lambda: SENARYO[tur][0][0]
-        r.medya_bilgisi_zaman_sinirli = sahte_medya
-        r.asyncio.sleep = sahte_bekle
+        m.KARA_KUTU_DOSYASI = Path(gecici) / "kara_kutu.txt"
+        m.KISTIM_NOTU = Path(gecici) / "kistim.txt"
+        m.spotify_ses_oturumlari = lambda: list(oturumlar)
+        m.spotify_ana_pencere_basligi = lambda: SENARYO[tur][0][0]
+        m.spotify_medya_bilgisi = sahte_medya
+        m.asyncio.sleep = sahte_bekle
 
-        try:
-            asyncio.run(r.ana_dongu())
-        except SenaryoBitti:
-            pass
-        not_kaldi_mi = r.KISTIM_NOTU.exists()
+        asyncio.run(motor.calis())
+        not_kaldi_mi = m.KISTIM_NOTU.exists()
 
     # --- Sonuçları kontrol et ---
-    print("Programın kayıtları:")
+    print("Motorun kayıtları:")
     print("\n".join("  " + k for k in kayitlar))
     print()
 
-    hatali = 0
-    for t, beklenen in BEKLENEN.items():
-        gercek = ses_durumlari.get(t)
-        tamam = gercek == beklenen
+    goster = lambda d: " ".join(f"{k}={'sessiz' if v else 'açık'}" for k, v in d.items())
+    kontrol_sayisi = hatali = 0
+    for t, (_, _, beklenen_ses, beklenen_ekran) in enumerate(SENARYO):
+        gercek_ses, gercek_ekran = gozlemler.get(t, ({}, None))
+        if beklenen_ses is not None:
+            kontrol_sayisi += 1
+            tamam = gercek_ses == beklenen_ses
+            hatali += not tamam
+            print(f"{'TAMAM ' if tamam else 'HATALI'}  tur {t:>2}  ses    beklenen: {goster(beklenen_ses):<34} gerçek: {goster(gercek_ses)}")
+        if beklenen_ekran is not None:
+            kontrol_sayisi += 1
+            tamam = gercek_ekran == beklenen_ekran
+            hatali += not tamam
+            print(f"{'TAMAM ' if tamam else 'HATALI'}  tur {t:>2}  ekran  beklenen: {beklenen_ekran:<34} gerçek: {gercek_ekran}")
+
+    for aciklama, tamam in (("sonunda 'kıstım' notu kalmamalı", not not_kaldi_mi),
+                            ("durdur() sonrası ekran KAPALI olmalı", motor.durum == "KAPALI"),
+                            ("durdur() sonrası motor çalışmıyor olmalı", not motor.calisiyor)):
+        kontrol_sayisi += 1
         hatali += not tamam
-        goster = lambda d: " ".join(f"{k}={'sessiz' if v else 'açık'}" for k, v in d.items()) if d else "-"
-        print(f"{'TAMAM ' if tamam else 'HATALI'}  tur {t:>2}  beklenen: {goster(beklenen):<34} gerçek: {goster(gercek)}")
+        print(f"{'TAMAM ' if tamam else 'HATALI'}  {aciklama}")
 
-    tamam = not not_kaldi_mi
-    hatali += not tamam
-    print(f"{'TAMAM ' if tamam else 'HATALI'}  sonunda 'kıstım' notu kalmamalı")
-
-    print("-" * 80)
-    print(f"{len(BEKLENEN) + 1} kontrolden {len(BEKLENEN) + 1 - hatali} tanesi TAMAM, {hatali} tanesi HATALI")
+    print("-" * 90)
+    print(f"{kontrol_sayisi} kontrolden {kontrol_sayisi - hatali} tanesi TAMAM, {hatali} tanesi HATALI")
 
 
 if __name__ == "__main__":

@@ -16,9 +16,8 @@ from winrt.windows.media.control import (
 )
 
 from gozlem import spotify_medya_bilgisi
-from reklam_susturucu import spotify_ana_pencere_basligi
-from reklam_susturucu import spotify_medya_bilgisi as yeni_medya_bilgisi   # Düzeltilmiş hali
-from ses_deneme import spotify_ses_oturumlari
+from spotify import spotify_ana_pencere_basligi, spotify_ses_oturumlari
+from spotify import spotify_medya_bilgisi as yeni_medya_bilgisi   # Düzeltilmiş hali
 
 TEKRAR_SAYISI = 300
 bu_program = psutil.Process()               # Kendimizi ölçüyoruz
