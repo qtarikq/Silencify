@@ -8,8 +8,7 @@ A small Windows app that automatically mutes Spotify when an ad starts playing a
 
 **[Download Silencify.exe](../../releases/latest/download/Silencify.exe)** (Windows 10/11)
 
-Just double-click the file, no installation needed. If Windows shows "Windows protected your PC", click ;
-**More info → Run anyway**.
+Just double-click the file, no installation needed. If Windows shows "Windows protected your PC", click **More info → Run anyway**.
 
 ## How does it work?
 
