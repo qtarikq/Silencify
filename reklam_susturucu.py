@@ -13,17 +13,15 @@ import asyncio                     # async/await ile bekleme işleri için
 import faulthandler                # Takılma olursa programın nerede beklediğini yazmak için
 from datetime import datetime      # Saati yazmak için
 
-import psutil                      # Program numarasından program adını bulmak için
-import win32gui                    # Windows pencereleriyle konuşmak için
-import win32process                # Bir pencerenin hangi programa ait olduğunu bulmak için
-
-from winrt.windows.media.control import (
-    GlobalSystemMediaTransportControlsSessionManager as MedyaYoneticisi,
-)
-
-from gozlem import DURUM_ADLARI                                     # ÇALIYOR / DURDU çevirisi
 from kural import karar_ver                                         # REKLAM / ŞARKI / PODCAST / DURDU
-from ses_deneme import sessiz_mi, sessize_al, spotify_ses_oturumlari  # Ses kısma / açma
+from spotify import (                                               # Spotify ve Windows ile konuşma
+    medya_yoneticisini_sifirla,
+    sessiz_mi,
+    sessize_al,
+    spotify_ana_pencere_basligi,
+    spotify_medya_bilgisi,
+    spotify_ses_oturumlari,
+)
 from yollar import KARA_KUTU, KISTIM_NOTU, SUSTURUCU_KAYDI          # Dosya yolları
 
 # ---------------------------------------------------------------------------
@@ -38,8 +36,6 @@ GEREKEN_TEKRAR = 2         # Bir karar kaç kontrol üst üste aynı olursa uygu
 MEDYA_ZAMAN_SINIRI = 3     # Windows medya bilgisi için en fazla kaç saniye beklenecek
 SURE_SINIRI = 10           # Bir tur bundan uzun sürerse kara kutuya yaz (saniye)
 OTURUM_YENILEME_ARALIGI = 5  # Reklam boyunca kaç turda bir Spotify'ın ses kaynakları yeniden kısılacak
-
-YARDIMCI_PENCERELER = {"GDI+ Window (Spotify.exe)", "MSCTFIME UI", "Default IME"}
 
 
 # ---------------------------------------------------------------------------
@@ -76,66 +72,16 @@ def spotify_sesini_ac():
     return True
 
 
-def spotify_ana_pencere_basligi():
-    """
-    Spotify'ın ANA penceresinin başlığını döndürür. Spotify kapalıysa None.
-    Ana pencere = Spotify'ın en büyük penceresi (mini oynatıcı hep küçüktür).
-    Pencere simge durumuna küçültülmüş olsa bile "normal" boyutuna bakılır.
-    """
-    en_buyuk_alan = 0
-    en_buyuk_baslik = None
-
-    def pencereye_bak(pencere, _):
-        nonlocal en_buyuk_alan, en_buyuk_baslik   # Dıştaki değişkenleri değiştirebilmek için
-        baslik = win32gui.GetWindowText(pencere)
-        if not baslik or baslik in YARDIMCI_PENCERELER:
-            return True
-        _, program_no = win32process.GetWindowThreadProcessId(pencere)
-        try:
-            if psutil.Process(program_no).name().lower() != "spotify.exe":
-                return True
-        except psutil.NoSuchProcess:
-            return True
-        sol, ust, sag, alt = win32gui.GetWindowPlacement(pencere)[4]   # Normal boyut
-        alan = (sag - sol) * (alt - ust)
-        if alan > en_buyuk_alan:
-            en_buyuk_alan = alan
-            en_buyuk_baslik = baslik
-        return True
-
-    win32gui.EnumWindows(pencereye_bak, None)
-    return en_buyuk_baslik
-
-
-# Windows'un medya yöneticisi. Her saniye baştan istemek bellek sızdırıyordu
-# (bkz. sizinti_olcumu.py), bu yüzden BİR KERE isteyip saklıyoruz.
-medya_yoneticisi = None
-
-
-async def spotify_medya_bilgisi():
-    """Windows medya bilgisinden (şarkı, sanatçı, durum) döndürür. Spotify yoksa None."""
-    global medya_yoneticisi                   # Dosyanın en üstündeki değişkeni değiştirebilmek için
-    if medya_yoneticisi is None:              # İlk sefer (ya da bir hatadan sonra) iste
-        medya_yoneticisi = await MedyaYoneticisi.request_async()
-    for oturum in medya_yoneticisi.get_sessions():
-        if "spotify" in oturum.source_app_user_model_id.lower():
-            bilgi = await oturum.try_get_media_properties_async()
-            durum_kodu = oturum.get_playback_info().playback_status
-            return bilgi.title, bilgi.artist, DURUM_ADLARI.get(durum_kodu, str(durum_kodu))
-    return None
-
-
 async def medya_bilgisi_zaman_sinirli():
     """Medya bilgisini okur; Windows MEDYA_ZAMAN_SINIRI saniyede cevap vermezse None döndürür."""
-    global medya_yoneticisi
     try:
         return await asyncio.wait_for(spotify_medya_bilgisi(), MEDYA_ZAMAN_SINIRI)
     except asyncio.TimeoutError:
         kaydet(f"UYARI: Medya bilgisi {MEDYA_ZAMAN_SINIRI} saniyede gelmedi, bu tur atlandı")
-        medya_yoneticisi = None               # Bir sorun var: bir sonraki turda yenisini iste
+        medya_yoneticisini_sifirla()          # Bir sorun var: bir sonraki turda yenisini iste
         return None
     except Exception:
-        medya_yoneticisi = None               # Bir sorun var: bir sonraki turda yenisini iste
+        medya_yoneticisini_sifirla()          # Bir sorun var: bir sonraki turda yenisini iste
         raise                                 # Hatayı ana döngüye ilet (orada kaydediliyor)
 
 
