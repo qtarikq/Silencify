@@ -54,13 +54,16 @@ def kaydet(mesaj):
 
 
 def spotify_sessize_al():
-    """Spotify'ı sessize alır ve diske 'kıstım' notu bırakır. Ses kaynağı yoksa False döndürür."""
+    """
+    Spotify'ı sessize alır ve diske 'kıstım' notu bırakır.
+    Kıstığı ses kaynaklarının kimliklerini (küme olarak) döndürür; ses kaynağı yoksa boş küme.
+    """
     oturumlar = spotify_ses_oturumlari()
     if not oturumlar:
-        return False
+        return set()
     sessize_al(oturumlar, True)
     KISTIM_NOTU.write_text(f"{datetime.now():%H:%M:%S}", encoding="utf-8")
-    return True
+    return {oturum.InstanceIdentifier for oturum in oturumlar}
 
 
 def spotify_sesini_ac():
@@ -147,6 +150,8 @@ async def ana_dongu():
     uygulanan_baslik = None     # O karar verilirken pencere başlığı neydi (kayda yazmak için)
     spotify_acik = None         # Spotify'ın açık/kapalı durumu (değişince yazmak için)
     reklam_turu = 0             # Sessize aldığımızdan beri kaç tur geçti
+    kistigimiz = set()          # Kıstığımız ses kaynaklarının kimlikleri
+    serbest = False             # Bu reklam arasında sesi kullanıcı açtı mı? (açtıysa dokunmuyoruz)
 
     kara_kutu = open(KARA_KUTU_DOSYASI, "a", encoding="utf-8")
     kara_kutu.write(f"\n--- {datetime.now():%Y-%m-%d %H:%M:%S} reklam_susturucu başladı ---\n")
@@ -210,22 +215,49 @@ async def ana_dongu():
 
             # --- Kararı uygula ---
             if karar == "REKLAM":
-                if biz_kistik:
+                if serbest:
+                    pass                              # Bu reklam arasında sesi sen açtın, dokunma
+
+                elif biz_kistik:
                     reklam_turu += 1
-                    if reklam_turu % OTURUM_YENILEME_ARALIGI == 0:      # Her saniye değil, 5 turda bir
-                        spotify_sessize_al()                          # Yeni ses kaynağı açıldıysa onu da kıs
+                    if reklam_turu % OTURUM_YENILEME_ARALIGI == 0:      # Her saniye değil, 5 turda bir bak
+                        oturumlar = spotify_ses_oturumlari()
+                        if not kistigimiz:            # Önceki çalışmadan kalan not: şu an sessiz olanlar bizimdir
+                            kistigimiz = {o.InstanceIdentifier for o in oturumlar
+                                          if o.SimpleAudioVolume.GetMute()}
+                        bizimkiler = [o for o in oturumlar if o.InstanceIdentifier in kistigimiz]
+                        yeniler = [o for o in oturumlar if o.InstanceIdentifier not in kistigimiz]
+
+                        if any(not o.SimpleAudioVolume.GetMute() for o in bizimkiler):
+                            # Kıstığımız bir kaynağın sesi açılmış: bunu sen yaptın, reklamı duymak istiyorsun.
+                            # Kıstığımız DİĞER kaynakları da aç (yoksa yarım kalır, sonra da açan olmaz).
+                            sessize_al(bizimkiler, False)
+                            serbest = True
+                            biz_kistik = False
+                            kistigimiz = set()
+                            KISTIM_NOTU.unlink(missing_ok=True)
+                            kaydet("  -> Sesi sen açtın: bu reklam arası boyunca dokunmuyorum")
+                        elif yeniler:
+                            # Spotify reklam sırasında yeni bir ses kaynağı açmış: onu da kıs
+                            sessize_al(yeniler, True)
+                            kistigimiz |= {o.InstanceIdentifier for o in yeniler}
+
                 else:
                     oturumlar = spotify_ses_oturumlari()
                     if oturumlar and sessiz_mi(oturumlar):
                         pass                          # Sen zaten sessize almışsın, dokunma
-                    elif spotify_sessize_al():
-                        biz_kistik = True
-                        reklam_turu = 0
-                        kaydet("  -> Spotify sessize alındı")
+                    else:
+                        kistigimiz = spotify_sessize_al()
+                        if kistigimiz:
+                            biz_kistik = True
+                            reklam_turu = 0
+                            kaydet("  -> Spotify sessize alındı")
 
             elif karar in ("ŞARKI", "PODCAST"):
+                serbest = False                       # Reklam arası bitti: bir sonraki reklamda yine kısacağız
                 if biz_kistik and spotify_sesini_ac():    # Ses kaynağı yoksa bir sonraki turda tekrar dener
                     biz_kistik = False
+                    kistigimiz = set()
                     kaydet("  -> Ses geri açıldı")
 
             # DURDU: hiçbir şey yapma (reklamı duraklatıp başlatınca ses bir an bile açılmasın)
@@ -234,6 +266,7 @@ async def ana_dongu():
 
     finally:                                   # Ctrl+C ya da hata: kıstığımız sesi geri aç
         faulthandler.cancel_dump_traceback_later()
+        kara_kutu.close()                      # Açtığımız dosyayı kapat
         if biz_kistik:
             if spotify_sesini_ac():
                 kaydet("  -> Program kapanırken ses geri açıldı")
